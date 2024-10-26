@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup</title>
+  <link rel="stylesheet" href="../styles/setupStyle.css">
+  <script src="../components/setupScript.js"></script>
+</head>
+<body>
+<h1>Setup Page</h1>
+
+<!-- Step 1 Camera selection & Pasik selection -->
+<div id="step1" class="step-container active">
+  <p>Step 1: Camera Selection & Pasik</p>
+</div>
+
+<!-- Step 2 Camera calibration -->
+<div id="step2" class="step-container">
+  <p>Step 2: Camera calibration</p>
+</div>
+
+<!-- Step 3 Recording limitation -->
+<div id="step3" class="step-container">
+  <p>Step 3: Recording limitation</p>
+  <a class="linkButton" href="recording.html">Record</a>
+</div>
+
+<!--  Buttons to navigate in the stepper  -->
+<div class="navigation-buttons">
+  <button id="prevButton" onclick="changeStep(-1)" disabled>Previous</button>
+  <button id="nextButton" onclick="changeStep(1)">Next</button>
+</div>
+</body>
+</html>
