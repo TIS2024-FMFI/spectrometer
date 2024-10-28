@@ -1,0 +1,23 @@
+body {
+    margin: 0;
+    padding: 0;
+}
+#cameraWindow{
+    margin: 10px 0px 0px 10px;
+    width: 600px;
+    height: 600px;
+    border: 1px solid red;
+}
+video {
+    background-color: black;
+    border: 1px solid yellow;
+    width: 100%;
+    height: 450px
+}
+select {
+    margin-top: 20px;
+    padding: 10px;
+}
+#cameraWindowCrontolsOnMeasure{
+    display: none;
+}
