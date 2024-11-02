@@ -105,6 +105,10 @@ var yPercentage = 0.5; // Global variable representing Y position as a percentag
 c.width = 640;
 c.height = 480;
 
+function getYPercentage() {
+    return yPercentage;
+}
+
 function drawLine() {
     ctx.clearRect(0, 0, c.width, c.height); // Clear the canvas
     ctx.beginPath(); // Start a new path to avoid connecting lines
