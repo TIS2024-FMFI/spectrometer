@@ -1,6 +1,7 @@
-// #####
-// Video
-// #####
+// ###########
+//    Video
+// ###########
+
 const videoElement = document.getElementById('video');
 const cameraSelect = document.getElementById('cameraSelect');
 let cameraUsed = "";
@@ -95,15 +96,18 @@ cameraSelect.addEventListener('change', () => {
 // Request access and populate the camera list when the page loads
 requestCameraAccess();
 
-// ######
-// Canvas
-// ######
+// ############
+//    Canvas
+// ############
+
 var c = document.getElementById("cameraWindowCanvas");
 var ctx = c.getContext("2d");
 var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
+var videoWindow = document.getElementById("videoWindow");
+var computedStyle = getComputedStyle(videoWindow);
 
-c.width = 640;
-c.height = 480;
+c.width = parseInt(computedStyle.width, 10);
+c.height = parseInt(computedStyle.height, 10);
 
 function getYPercentage() {
     return yPercentage;
@@ -112,6 +116,7 @@ function getYPercentage() {
 function drawLine() {
     ctx.clearRect(0, 0, c.width, c.height); // Clear the canvas
     ctx.beginPath(); // Start a new path to avoid connecting lines
+    ctx.strokeStyle = "yellow"; // Set line color to yellow
     var y = yPercentage * c.height; // Calculate Y-coordinate based on percentage
     ctx.moveTo(0, y);
     ctx.lineTo(c.width, y);
