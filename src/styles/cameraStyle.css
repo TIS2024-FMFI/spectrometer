@@ -1,14 +1,10 @@
-body {
-    margin: 0;
-    padding: 0;
-}
 #cameraWindow{
     margin: 10px 0 0 10px;
     width: 640px;
     height: 600px;
     border: 1px solid black;
 }
-select {
+#cameraSelect {
     margin-top: 20px;
     padding: 10px;
 }
