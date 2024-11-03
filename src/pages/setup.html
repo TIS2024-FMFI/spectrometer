@@ -7,6 +7,7 @@
   <title>Setup</title>
   <link rel="stylesheet" href="../styles/setupStyle.css">
   <script src="../components/setupScript.js"></script>
+  <script src="../components/calibrationScript.js"></script>
 </head>
 <body>
 <h1>Setup Page</h1>
@@ -19,6 +20,48 @@
 <!-- Step 2 Camera calibration -->
 <div id="step2" class="step-container">
   <p>Step 2: Camera calibration</p>
+  <div style="display:flex">
+    <div style="width: 150px; text-align: right">px</div>
+    <div style="width: 180px; text-align: right">nm</div>
+  </div>
+
+  <div id="input-container">
+    <div>
+     point 1:
+      <label for="point1px"></label>
+        <input id="point1px" type="number"/>
+
+      <label for="point1nm"></label>
+        <input id="point1nm" type="number"/>
+    </div>
+
+    <div>
+      point 2:
+      <label for="point2px"></label>
+      <input id="point2px" type="number"/>
+
+      <label for="point2nm"></label>
+      <input id="point2nm" type="number"/>
+    </div>
+
+    <div>
+      point 3:
+      <label for="point3px"></label>
+      <input id="point3px" type="number"/>
+
+      <label for="point3nm"></label>
+      <input id="point3nm" type="number"/>
+    </div>
+  </div>
+
+  <div>
+    <button id="addPoints" onclick="addInputPair()">Add calibration points</button>
+  </div>
+  <div>
+    <button id="calibrateButton" onclick="calibrate()">Calibrate</button>
+    <button id="exportCalibrationSettings" onclick="exportCalFile()">Export calibration settings</button>
+    <button id="loadCalibrationFile" onclick="importCalFile()">Import calibration settings</button>
+  </div>
 </div>
 
 <!-- Step 3 Recording limitation -->
