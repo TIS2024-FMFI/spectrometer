@@ -7,12 +7,15 @@
 </head>
 <body>
     <div id="cameraWindow">
-        <video id="video" autoplay playsinline></video>
+        <div id="videoWindow">
+            <video id="video" autoplay playsinline></video>
+            <canvas id="cameraWindowCanvas" >Your browser does not support the HTML canvas tag.</canvas>
+        </div>
         <div id="cameraWindowControlsOnSetUp">
             <select id="cameraSelect"></select>
             <button onclick="getCameras()">Refresh</button>
         </div>
-        <div id="cameraWindowCrontolsOnMeasure">
+        <div id="cameraWindowControlsOnMeasure">
             <button onclick="resetCamera()">Refresh</button>
         </div>
         <button onclick="changeDisplay()">Change display</button>
