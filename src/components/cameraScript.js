@@ -16,6 +16,11 @@ async function startStream(deviceId) {
     try {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         videoElement.srcObject = stream;
+
+        // Makes sure the graph is drawn into its canvas the moment the stream starts
+        videoElement.onloadedmetadata = () => {
+            plotRGBLineFromCamera(videoElement, getYPercentage());
+        };
     } catch (error) {
         console.error('Error accessing camera: ', error);
         alert("Camera has not been found");
@@ -28,13 +33,15 @@ async function getCameras() {
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = devices.filter(device => device.kind === 'videoinput');
 
-        cameraSelect.innerHTML = '';
-        videoDevices.forEach(device => {
-            const option = document.createElement('option');
-            option.value = device.deviceId;
-            option.text = device.label || `Camera ${cameraSelect.length + 1}`;
-            cameraSelect.appendChild(option);
-        });
+        if (cameraSelect != null) {
+            cameraSelect.innerHTML = '';
+            videoDevices.forEach(device => {
+                const option = document.createElement('option');
+                option.value = device.deviceId;
+                option.text = device.label || `Camera ${cameraSelect.length + 1}`;
+                cameraSelect.appendChild(option);
+            });
+        }
 
         // If there are cameras, start with the first one
         if (videoDevices.length > 0) {
@@ -59,32 +66,6 @@ async function requestCameraAccess() {
 
 async function resetCamera() {
     await startStream(cameraUsed);
-}
-
-// async function setDisplay(changeableCamera){
-//     const setUp = document.getElementById('cameraWindowControlsOnSetUp');
-//     const measure = document.getElementById('cameraWindowControlsOnMeasure');
-//     if (changeableCamera) {
-//         measure.style.display = "none";
-//         setUp.style.display = "block";
-//     }
-//     else{
-//         measure.style.display = "block";
-//         setUp.style.display = "none";
-//     }
-// }
-
-async function blockChangingCamera(canChange = true){
-    const setUp = document.getElementById('cameraWindowControlsOnSetUp');
-    const measure = document.getElementById('cameraWindowControlsOnMeasure');
-    if (canChange){
-        measure.style.display = "none";
-        setUp.style.display = "block";
-    }
-    else{
-        measure.style.display = "block";
-        setUp.style.display = "none";
-    }
 }
 
 // Event listener to switch between cameras
@@ -117,10 +98,6 @@ async function changeCamera(cameraName) {
     }
 }
 
-function recordingLoad(changeInput) {
-    changeCamera(changeInput);  // Change the camera to the one that is saved from setup
-}
-
 // Request access and populate the camera list when the page loads
 requestCameraAccess();
 
@@ -144,20 +121,28 @@ function drawSelectionLine() {
 }
 
 var c = document.getElementById("cameraWindowCanvasRecording");
-var ctx = c.getContext("2d");
-var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
-var videoWindow = document.getElementById("videoWindow");
-var computedStyle = getComputedStyle(videoWindow);
 
-c.width = parseInt(computedStyle.width, 10);
-c.height = parseInt(computedStyle.height, 10);
+// Unless the Canvas is present, nothing will be done with it
+if (c != null) {
+    var ctx = c.getContext("2d");
+    var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
+    var videoWindow = document.getElementById("videoWindow");
+    var computedStyle = getComputedStyle(videoWindow);
+
+    c.width = parseInt(computedStyle.width, 10);
+    c.height = parseInt(computedStyle.height, 10);
 
 // Event listener for mouse clicks on the canvas
-c.addEventListener("click", function(event) {
-    var rect = c.getBoundingClientRect(); // Get canvas position
-    var y = event.clientY - rect.top; // Calculate Y within canvas
-    yPercentage = y / c.height; // Update global variable as percentage
-    drawSelectionLine(); // Redraw line at the new position
-});
+    c.addEventListener("click", function (event) {
+        var rect = c.getBoundingClientRect(); // Get canvas position
+        var y = event.clientY - rect.top; // Calculate Y within canvas
+        yPercentage = y / c.height; // Update global variable as percentage
+        drawSelectionLine(); // Redraw line at the new position
+        if (videoElement) {
+            plotRGBLineFromCamera(videoElement, getYPercentage());
+        }
+    });
 
-drawSelectionLine();    // Initial draw of the line at the default percentage
+    // Initial draw of the line at the default percentage
+    drawSelectionLine();    // Initial draw of the line at the default percentage
+}

@@ -128,16 +128,10 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5) {
     drawGraphLine();
 }
 
-document.getElementById('video').addEventListener('play', () => {
-    if (videoElement) {
-        plotRGBLineFromCamera(videoElement, 0.5);
-    }
-});
-
 document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
     checkbox.addEventListener('change', () => {
         if (videoElement) {
-            plotRGBLineFromCamera(videoElement, 0.5);
+            plotRGBLineFromCamera(videoElement, getYPercentage());
         }
     });
 });
