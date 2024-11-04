@@ -6,16 +6,45 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recording</title>
   <link rel="stylesheet" href="../styles/recordingStyle.css">
+  <link rel="stylesheet" href="../styles/cameraStyle.css">
+
 </head>
-<body>
-<div class="top-left-container">
-  <h1 class="title">Recording Page</h1>
-  <nav class="nav-menu">
-    <ul>
-      <li><a href="index.html" class="btn">Home</a></li>
-      <li><a href="setup.html" class="btn">New Recording</a></li>
-    </ul>
-  </nav>
-</div>
+<!--TODO change to camera name sent in-->
+<body onload="recordingLoad('')">
+  <div class="top-left-container">
+    <h1 class="title">Recording Page</h1>
+    <nav class="nav-menu">
+      <ul>
+        <li><a href="index.html" class="btn">Home</a></li>
+        <li><a href="setup.html" class="btn">New Recording</a></li>
+      </ul>
+    </nav>
+
+    <div id="cameraWindow">
+      <div id="videoWindow">
+        <video id="video" autoplay playsinline></video>
+        <!--TODO Refresh for safari-->
+        <canvas id="cameraWindowCanvasRecording" >Your browser does not support the HTML canvas tag.</canvas>
+      </div>
+      <div id="cameraWindowControlsOnMeasure">
+        <button onclick="resetCamera()">Refresh</button>
+      </div>
+
+      <script src="../components/cameraScript.js"></script>
+    </div>
+
+    <div id="graphWindow">
+      <div id="checkboxWindow">
+        <label><input type="checkbox" id="toggleCombined" checked> Combined</label>
+        <label><input type="checkbox" id="toggleR"> R</label>
+        <label><input type="checkbox" id="toggleG"> G</label>
+        <label><input type="checkbox" id="toggleB"> B</label>
+      </div>
+      <canvas id="graphCanvas"></canvas>
+
+      <script src="../components/graphComponent.js"></script>
+    </div>
+
+  </div>
 </body>
 </html>

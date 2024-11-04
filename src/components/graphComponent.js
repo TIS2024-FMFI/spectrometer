@@ -1,4 +1,4 @@
-export function plotRGBLineFromCamera(videoElement, stripePosition = 0.5) {
+function plotRGBLineFromCamera(videoElement, stripePosition = 0.5) {
     const lineCanvas = document.createElement('canvas');
     lineCanvas.width = videoElement.videoWidth;
     lineCanvas.height = 1;
@@ -14,7 +14,7 @@ export function plotRGBLineFromCamera(videoElement, stripePosition = 0.5) {
     const toggleG = document.getElementById('toggleG').checked;
     const toggleB = document.getElementById('toggleB').checked;
 
-    function drawLine() {
+    function drawGraphLine() {
         if (videoElement.paused || videoElement.ended) return;
 
         const yPos = Math.floor(videoElement.videoHeight * stripePosition);
@@ -123,7 +123,21 @@ export function plotRGBLineFromCamera(videoElement, stripePosition = 0.5) {
             graphCtx.stroke();
         }
 
-        requestAnimationFrame(drawLine);
+        requestAnimationFrame(drawGraphLine);
     }
-    drawLine();
+    drawGraphLine();
 }
+
+document.getElementById('video').addEventListener('play', () => {
+    if (videoElement) {
+        plotRGBLineFromCamera(videoElement, 0.5);
+    }
+});
+
+document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+        if (videoElement) {
+            plotRGBLineFromCamera(videoElement, 0.5);
+        }
+    });
+});

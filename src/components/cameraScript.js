@@ -61,18 +61,18 @@ async function resetCamera() {
     await startStream(cameraUsed);
 }
 
-async function changeDisplay(){
-    const setUp = document.getElementById('cameraWindowControlsOnSetUp');
-    const measure = document.getElementById('cameraWindowControlsOnMeasure');
-    if (window.getComputedStyle(measure).display === "none") {
-        measure.style.display = "block";
-        setUp.style.display = "none";
-    }
-    else{
-        measure.style.display = "none";
-        setUp.style.display = "block";
-    }
-}
+// async function setDisplay(changeableCamera){
+//     const setUp = document.getElementById('cameraWindowControlsOnSetUp');
+//     const measure = document.getElementById('cameraWindowControlsOnMeasure');
+//     if (changeableCamera) {
+//         measure.style.display = "none";
+//         setUp.style.display = "block";
+//     }
+//     else{
+//         measure.style.display = "block";
+//         setUp.style.display = "none";
+//     }
+// }
 
 async function blockChangingCamera(canChange = true){
     const setUp = document.getElementById('cameraWindowControlsOnSetUp');
@@ -88,10 +88,38 @@ async function blockChangingCamera(canChange = true){
 }
 
 // Event listener to switch between cameras
-cameraSelect.addEventListener('change', () => {
-    startStream(cameraSelect.value);
-    cameraUsed = cameraSelect.value;
-});
+if (cameraSelect != null) {
+    cameraSelect.addEventListener('change', () => {
+        startStream(cameraSelect.value);
+        cameraUsed = cameraSelect.value;
+    });
+}
+
+// Function to manually change to a camera with the given name (if it exists)
+async function changeCamera(cameraName) {
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+        // Find a device that matches the given name and start it
+        if (videoDevices.find(device => device.label === cameraName)) {
+            startStream(targetDevice.deviceId);
+            cameraUsed = targetDevice.deviceId;
+        } else {
+            //TEMP remove
+            if (videoDevices.length > 0) {
+                startStream(videoDevices[0].deviceId);
+                cameraUsed = videoDevices[0].deviceId;
+            }
+        }
+    } catch (error) {
+        console.error('Error switching camera:', error);
+    }
+}
+
+function recordingLoad(changeInput) {
+    changeCamera(changeInput);  // Change the camera to the one that is saved from setup
+}
 
 // Request access and populate the camera list when the page loads
 requestCameraAccess();
@@ -100,20 +128,12 @@ requestCameraAccess();
 //    Canvas
 // ############
 
-var c = document.getElementById("cameraWindowCanvas");
-var ctx = c.getContext("2d");
-var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
-var videoWindow = document.getElementById("videoWindow");
-var computedStyle = getComputedStyle(videoWindow);
-
-c.width = parseInt(computedStyle.width, 10);
-c.height = parseInt(computedStyle.height, 10);
-
 function getYPercentage() {
     return yPercentage;
 }
 
-function drawLine() {
+// Draws the yellow selection line
+function drawSelectionLine() {
     ctx.clearRect(0, 0, c.width, c.height); // Clear the canvas
     ctx.beginPath(); // Start a new path to avoid connecting lines
     ctx.strokeStyle = "yellow"; // Set line color to yellow
@@ -123,13 +143,21 @@ function drawLine() {
     ctx.stroke();
 }
 
+var c = document.getElementById("cameraWindowCanvasRecording");
+var ctx = c.getContext("2d");
+var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
+var videoWindow = document.getElementById("videoWindow");
+var computedStyle = getComputedStyle(videoWindow);
+
+c.width = parseInt(computedStyle.width, 10);
+c.height = parseInt(computedStyle.height, 10);
+
 // Event listener for mouse clicks on the canvas
 c.addEventListener("click", function(event) {
     var rect = c.getBoundingClientRect(); // Get canvas position
     var y = event.clientY - rect.top; // Calculate Y within canvas
     yPercentage = y / c.height; // Update global variable as percentage
-    drawLine(); // Redraw line at the new position
+    drawSelectionLine(); // Redraw line at the new position
 });
 
-// Initial draw of the line at the default percentage
-drawLine();
+drawSelectionLine();    // Initial draw of the line at the default percentage
