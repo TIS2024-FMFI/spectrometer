@@ -98,12 +98,27 @@ async function changeCamera(cameraName) {
     }
 }
 
+async function pausePlayVideo(){
+    const button = document.getElementById("pausePlayVideoButton");
+    if (button.innerText === "Pause"){
+        videoElement.pause();
+        button.innerText = "Play";
+    }
+    else{
+        videoElement.play();
+        button.innerText = "Pause";
+        if (videoElement) {
+            plotRGBLineFromCamera(videoElement, getYPercentage());
+        }
+    }
+}
+
 // Request access and populate the camera list when the page loads
 requestCameraAccess();
 
-// ############
-//    Canvas
-// ############
+// ##################
+//    Canvas/Pasik
+// ##################
 
 function getYPercentage() {
     return yPercentage;
