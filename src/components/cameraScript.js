@@ -65,7 +65,11 @@ async function requestCameraAccess() {
 }
 
 async function resetCamera() {
+    const button = document.getElementById('pausePlayVideoButton');
     await startStream(cameraUsed);
+    if (button.innerText === "Play"){
+        button.innerText = "Pause";
+    }
 }
 
 // Event listener to switch between cameras
