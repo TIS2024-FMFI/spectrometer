@@ -1,14 +1,10 @@
-body {
-    margin: 0;
-    padding: 0;
-}
 #cameraWindow{
     margin: 10px 0 0 10px;
     width: 640px;
     height: 600px;
     border: 1px solid black;
 }
-select {
+#cameraSelect {
     margin-top: 20px;
     padding: 10px;
 }
@@ -25,7 +21,7 @@ select {
     height: 100%;
     z-index: 1;
 }
-#cameraWindowCanvas {
+#cameraWindowCanvasRecording {
     position: absolute;
     top: 0;
     left: 0;
@@ -33,7 +29,4 @@ select {
     height: 100%;
     z-index: 2;
     border: 1px solid yellow;
-}
-#cameraWindowControlsOnMeasure{
-    display: none;
 }

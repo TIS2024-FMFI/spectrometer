@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Setup</title>
   <link rel="stylesheet" href="../styles/setupStyle.css">
+  <link rel="stylesheet" href="../styles/cameraStyle.css">
   <script src="../components/setupScript.js"></script>
   <script src="../components/calibrationScript.js"></script>
 </head>
@@ -15,6 +16,19 @@
 <!-- Step 1 Camera selection & Pasik selection -->
 <div id="step1" class="step-container active">
   <p>Step 1: Camera Selection & Pasik</p>
+
+  <div id="cameraWindow">
+    <div id="videoWindow">
+      <video id="video" autoplay playsinline></video>
+<!--      <canvas id="cameraWindowCanvas" >Your browser does not support the HTML canvas tag.</canvas>-->
+    </div>
+    <div id="cameraWindowControlsOnSetUp">
+      <select id="cameraSelect"></select>
+      <button onclick="getCameras()">Refresh</button>
+    </div>
+  </div>
+
+  <script src="../components/cameraScript.js"></script>
 </div>
 
 <!-- Step 2 Camera calibration -->
