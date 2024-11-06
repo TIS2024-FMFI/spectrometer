@@ -191,6 +191,8 @@ if (c != null) {
 
     c.width = parseInt(computedStyle.width, 10);
     c.height = parseInt(computedStyle.height, 10);
+    //set max width of stripe
+    document.getElementById("stripeWidthRange").max = c.height;
 
 // Event listener for mouse clicks on the canvas
     c.addEventListener("click", function (event) {
