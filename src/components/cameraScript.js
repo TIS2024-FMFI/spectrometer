@@ -112,7 +112,7 @@ async function pausePlayVideo(){
         videoElement.play();
         button.innerText = "Pause";
         if (videoElement) {
-            plotRGBLineFromCamera(videoElement, getYPercentage());
+            plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
         }
     }
 }
@@ -124,6 +124,45 @@ requestCameraAccess();
 //    Canvas/Pasik
 // ##################
 
+function getStripeWidth(){
+    return stripeWidth;
+}
+
+function decreaseStripeWidth() {
+    const rangeInput = document.getElementById("stripeWidthRange");
+    if (stripeWidth > parseInt(rangeInput.min, 10)) {
+        rangeInput.value = stripeWidth - 1;
+        updateStripeWidth(rangeInput.value);
+    }
+}
+
+function increaseStripeWidth() {
+    const rangeInput = document.getElementById("stripeWidthRange");
+    if (stripeWidth < parseInt(rangeInput.max, 10)) {
+        rangeInput.value = stripeWidth + 1;
+        updateStripeWidth(rangeInput.value);
+    }
+}
+
+// Aktualizuje hodnotu šírky pásika na základe posuvníka
+function updateStripeWidth(value) {
+    stripeWidth = parseInt(value, 10);
+    document.getElementById("stripeWidthValue").textContent = value;
+    var y = yPercentage * c.height;
+    if (y < stripeWidth/2){
+        y = stripeWidth/2;
+        yPercentage = y / c.height;
+    }
+    else if (y + stripeWidth/2 > c.height){
+        y = c.height - stripeWidth/2;
+        yPercentage = y / c.height;
+    }
+    drawSelectionLine();
+    if (videoElement) {
+        plotRGBLineFromCamera(videoElement, getYPercentage(), stripeWidth);
+    }
+}
+
 function getYPercentage() {
     return yPercentage;
 }
@@ -132,7 +171,8 @@ function getYPercentage() {
 function drawSelectionLine() {
     ctx.clearRect(0, 0, c.width, c.height); // Clear the canvas
     ctx.beginPath(); // Start a new path to avoid connecting lines
-    ctx.strokeStyle = "yellow"; // Set line color to yellow
+    ctx.strokeStyle = "rgba(255, 255, 0, 0.5)"; // Set line color to yellow
+    ctx.lineWidth = getStripeWidth();
     var y = yPercentage * c.height; // Calculate Y-coordinate based on percentage
     ctx.moveTo(0, y);
     ctx.lineTo(c.width, y);
@@ -145,20 +185,29 @@ var c = document.getElementById("cameraWindowCanvasRecording");
 if (c != null) {
     var ctx = c.getContext("2d");
     var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
+    var stripeWidth = 1
     var videoWindow = document.getElementById("videoWindow");
     var computedStyle = getComputedStyle(videoWindow);
 
     c.width = parseInt(computedStyle.width, 10);
     c.height = parseInt(computedStyle.height, 10);
+    //set max width of stripe
+    document.getElementById("stripeWidthRange").max = c.height;
 
 // Event listener for mouse clicks on the canvas
     c.addEventListener("click", function (event) {
         var rect = c.getBoundingClientRect(); // Get canvas position
         var y = event.clientY - rect.top; // Calculate Y within canvas
+        if (y < getStripeWidth()/2){
+            y = getStripeWidth()/2;
+        }
+        else if (y + getStripeWidth()/2 > c.height){
+            y = c.height - getStripeWidth()/2;
+        }
         yPercentage = y / c.height; // Update global variable as percentage
         drawSelectionLine(); // Redraw line at the new position
         if (videoElement) {
-            plotRGBLineFromCamera(videoElement, getYPercentage());
+            plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
         }
     });
 
