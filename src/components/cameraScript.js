@@ -124,6 +124,36 @@ requestCameraAccess();
 //    Canvas/Pasik
 // ##################
 
+function getStripeWidth(){
+    return stripeWidth;
+}
+
+function decreaseStripeWidth() {
+    const rangeInput = document.getElementById("stripeWidthRange");
+    if (stripeWidth > parseInt(rangeInput.min, 10)) {
+        rangeInput.value = stripeWidth - 1;
+        updateStripeWidth(rangeInput.value);
+    }
+}
+
+function increaseStripeWidth() {
+    const rangeInput = document.getElementById("stripeWidthRange");
+    if (stripeWidth < parseInt(rangeInput.max, 10)) {
+        rangeInput.value = stripeWidth + 1;
+        updateStripeWidth(rangeInput.value);
+    }
+}
+
+// Aktualizuje hodnotu šírky pásika na základe posuvníka
+function updateStripeWidth(value) {
+    stripeWidth = parseInt(value, 10);
+    document.getElementById("stripeWidthValue").textContent = value;
+    if (videoElement) {
+        plotRGBLineFromCamera(videoElement, getYPercentage(), stripeWidth);
+    }
+    drawSelectionLine();
+}
+
 function getYPercentage() {
     return yPercentage;
 }
@@ -132,7 +162,8 @@ function getYPercentage() {
 function drawSelectionLine() {
     ctx.clearRect(0, 0, c.width, c.height); // Clear the canvas
     ctx.beginPath(); // Start a new path to avoid connecting lines
-    ctx.strokeStyle = "yellow"; // Set line color to yellow
+    ctx.strokeStyle = "rgba(255, 255, 0, 0.5)"; // Set line color to yellow
+    ctx.lineWidth = getStripeWidth();
     var y = yPercentage * c.height; // Calculate Y-coordinate based on percentage
     ctx.moveTo(0, y);
     ctx.lineTo(c.width, y);
@@ -145,6 +176,7 @@ var c = document.getElementById("cameraWindowCanvasRecording");
 if (c != null) {
     var ctx = c.getContext("2d");
     var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
+    var stripeWidth = 1
     var videoWindow = document.getElementById("videoWindow");
     var computedStyle = getComputedStyle(videoWindow);
 
@@ -158,7 +190,7 @@ if (c != null) {
         yPercentage = y / c.height; // Update global variable as percentage
         drawSelectionLine(); // Redraw line at the new position
         if (videoElement) {
-            plotRGBLineFromCamera(videoElement, getYPercentage());
+            plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
         }
     });
 

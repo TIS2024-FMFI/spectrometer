@@ -29,6 +29,11 @@
       <div id="cameraWindowControlsOnMeasure">
         <button onclick="resetCamera()">Refresh</button>
         <button onclick="pausePlayVideo()" id="pausePlayVideoButton">Pause</button>
+        <label for="stripeWidthRange">Stripe Width:</label>
+        <button onclick="decreaseStripeWidth()">-</button>
+        <input type="range" id="stripeWidthRange" min="1" max="255" value="1" onchange="updateStripeWidth(this.value)">
+        <button onclick="increaseStripeWidth()">+</button>
+        <span id="stripeWidthValue">1</span> px
       </div>
 
       <script src="../components/cameraScript.js"></script>
