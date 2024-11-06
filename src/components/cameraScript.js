@@ -153,7 +153,7 @@ function updateStripeWidth(value) {
         y = stripeWidth/2;
         yPercentage = y / c.height;
     }
-    else if (y + stripeWidth > c.height){
+    else if (y + stripeWidth/2 > c.height){
         y = c.height - stripeWidth/2;
         yPercentage = y / c.height;
     }
