@@ -112,7 +112,7 @@ async function pausePlayVideo(){
         videoElement.play();
         button.innerText = "Pause";
         if (videoElement) {
-            plotRGBLineFromCamera(videoElement, getYPercentage());
+            plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
         }
     }
 }
@@ -148,10 +148,19 @@ function increaseStripeWidth() {
 function updateStripeWidth(value) {
     stripeWidth = parseInt(value, 10);
     document.getElementById("stripeWidthValue").textContent = value;
+    var y = yPercentage * c.height;
+    if (y < stripeWidth/2){
+        y = stripeWidth/2;
+        yPercentage = y / c.height;
+    }
+    else if (y + stripeWidth > c.height){
+        y = c.height - stripeWidth/2;
+        yPercentage = y / c.height;
+    }
+    drawSelectionLine();
     if (videoElement) {
         plotRGBLineFromCamera(videoElement, getYPercentage(), stripeWidth);
     }
-    drawSelectionLine();
 }
 
 function getYPercentage() {
@@ -187,6 +196,12 @@ if (c != null) {
     c.addEventListener("click", function (event) {
         var rect = c.getBoundingClientRect(); // Get canvas position
         var y = event.clientY - rect.top; // Calculate Y within canvas
+        if (y < getStripeWidth()/2){
+            y = getStripeWidth()/2;
+        }
+        else if (y + getStripeWidth()/2 > c.height){
+            y = c.height - getStripeWidth()/2;
+        }
         yPercentage = y / c.height; // Update global variable as percentage
         drawSelectionLine(); // Redraw line at the new position
         if (videoElement) {
