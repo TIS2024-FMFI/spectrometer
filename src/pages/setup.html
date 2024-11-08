@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../styles/cameraStyle.css">
   <script src="../components/setupScript.js"></script>
   <script src="../components/calibrationScript.js"></script>
+  <script src="../components/polynomialRegressionScript.js"></script>
 </head>
 <body>
 <h1>Setup Page</h1>
@@ -70,11 +71,14 @@
 
   <div>
     <button id="addPoints" onclick="addInputPair()">Add calibration points</button>
+    <button id="removePoints" onclick="removeInputPair(this)">remove calibration points</button>
+    <button id="calibrateButton" onclick="setCalibrationPoints()">Calibrate</button>
+    <button id="resetCalibrationPoints" onclick="resetCalibrationPoints()">Reset calibration points</button>
   </div>
+
   <div>
-    <button id="calibrateButton" onclick="calibrate()">Calibrate</button>
-    <button id="exportCalibrationSettings" onclick="exportCalFile()">Export calibration settings</button>
-    <button id="loadCalibrationFile" onclick="importCalFile()">Import calibration settings</button>
+    <button id="exportCalibrationSettings" onclick="exportCalibrationFile()">Export calibration settings</button>
+    <input type="file" name="my_file" id="my-file" onchange="importCalibrationFile()">
   </div>
 </div>
 
