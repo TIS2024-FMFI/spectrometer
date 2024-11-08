@@ -1,4 +1,8 @@
-let counter = 3; //number for the next input box
+/**
+ * Number for the next input box
+ * @type {number}
+ */
+let inputBoxCounter = 3;
 
 let polyFitCoefficientsArray = [];
 let calibrationData = [];
@@ -9,8 +13,8 @@ let nmCalPoints = [];
  *Adds a pair of input boxes
  */
 function addInputPair() {
-    counter++;
-    if (counter === 15) {
+    inputBoxCounter++;
+    if (inputBoxCounter === 15) {
         return;
     }
 
@@ -18,21 +22,21 @@ function addInputPair() {
     const div = document.createElement("div");
 
     const pointLabel = document.createElement("span");
-    pointLabel.textContent = `Point ${counter}: `;
+    pointLabel.textContent = `Point ${inputBoxCounter}: `;
 
     // Create the first input for px with label
     const labelPx = document.createElement("label");
-    labelPx.setAttribute("for", `point${counter}px`);
+    labelPx.setAttribute("for", `point${inputBoxCounter}px`);
     const inputPx = document.createElement("input");
     inputPx.type = "number";
-    inputPx.id = `point${counter}px`;
+    inputPx.id = `point${inputBoxCounter}px`;
 
     // Create the second input for nm with label
     const labelNm = document.createElement("label");
-    labelNm.setAttribute("for", `point${counter}nm`);
+    labelNm.setAttribute("for", `point${inputBoxCounter}nm`);
     const inputNm = document.createElement("input");
     inputNm.type = "number";
-    inputNm.id = `point${counter}nm`;
+    inputNm.id = `point${inputBoxCounter}nm`;
 
     // Append everything to the div
     div.appendChild(pointLabel);
@@ -53,7 +57,7 @@ function removeInputPair() {
     if (inputContainer.children.length > 3) {
         const lastInputPair = inputContainer.lastElementChild;
         inputContainer.removeChild(lastInputPair); // Remove the last input pair
-        counter --;
+        inputBoxCounter --;
         }
 }
 
@@ -73,8 +77,8 @@ function resetInputBoxes() {
  * Removes all the additional boxes that were already added by the user
  */
 function deleteAllAdditionalInputPairs() {
-    if (counter !== 3) {
-        for (let i = counter; i !== 3; i--) {
+    if (inputBoxCounter !== 3) {
+        for (let i = inputBoxCounter; i !== 3; i--) {
             removeInputPair();
         }
     }
@@ -85,7 +89,7 @@ function deleteAllAdditionalInputPairs() {
  */
 function setCalibrationPoints() {
     resetCalValues(); //resets the contet of arrays before saving new calibration points
-    for (let i = 1; i < counter + 1; i++) {
+    for (let i = 1; i < inputBoxCounter + 1; i++) {
         const pxInput = document.getElementById(`point${i}px`);
         const nmInput = document.getElementById(`point${i}nm`);
 
@@ -217,12 +221,12 @@ function importCalibrationFile() {
 }
 
 /**
- * Resets
+ * Empties the input boxes and removes all the additional ones
  */
 function resetCalibrationPoints() {
     deleteAllAdditionalInputPairs();
     resetInputBoxes();
-    counter = 3;
+    inputBoxCounter = 3;
 }
 
 
