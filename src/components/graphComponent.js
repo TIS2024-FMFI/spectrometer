@@ -1,3 +1,6 @@
+// Slúži na priblíženie grafu na základe kliknutia na canvas
+let zoomList = [];
+
 function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth = 1) {
     const lineCanvas = document.createElement('canvas');
     lineCanvas.width = videoElement.videoWidth;
@@ -15,14 +18,26 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
     const toggleB = document.getElementById('toggleB').checked;
 
     function drawGraphLine() {
-        if (videoElement.paused || videoElement.ended) return;
+        if (videoElement.ended) return;
 
         // Určíme počiatočnú pozíciu pásika
         const startY = Math.floor(videoElement.videoHeight * stripePosition);
         ctx.drawImage(videoElement, 0, startY, videoElement.videoWidth, stripeWidth, 0, 0, videoElement.videoWidth, stripeWidth);
 
         // Získame pixely pre zadaný pásik (s výškou stripeWidth)
-        const pixels = ctx.getImageData(0, 0, videoElement.videoWidth, stripeWidth).data;
+        let pixels = ctx.getImageData(0, 0, videoElement.videoWidth, stripeWidth).data;
+        let pixelWidth = videoElement.videoWidth;
+
+        // Ak je zadaný zoom, tak zobrazíme len časť grafu
+        let zoomStart = 0;
+        let zoomEnd = videoElement.videoWidth;
+
+        if (zoomList.length === 2) {
+            [zoomStart, zoomEnd] = zoomList;
+            pixels = pixels.slice(zoomStart * 4, zoomEnd * 4);
+            pixelWidth = zoomEnd - zoomStart;
+        }
+
         graphCtx.clearRect(0, 0, width, height);
         graphCtx.beginPath();
 
@@ -46,7 +61,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
             const x = padding + ((width - 2 * padding) / 10) * i;
             graphCtx.moveTo(x, padding);
             graphCtx.lineTo(x, height - padding);
-            const label = ((i * videoElement.videoWidth) / 10).toFixed(0); // Dynamické popisky podľa šírky videa
+            const label = (zoomStart + (i * (zoomEnd - zoomStart) / 10)).toFixed(0); // Dynamické popisky podľa zoomu
             graphCtx.fillText(label, x - 10, height - 5);
         }
 
@@ -60,77 +75,52 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
             return sum / stripeWidth;
         }
 
-        // Vykreslenie kombinovanej línie
+        // Funkcia na zistenie maximálnej farby pre kombinovaný graf
+        function calculateMaxColor(x) {
+            let maxColor = 0;
+            for (let y = 0; y < stripeWidth; y++) {
+                const r = pixels[(y * videoElement.videoWidth + x) * 4];
+                const g = pixels[(y * videoElement.videoWidth + x) * 4 + 1];
+                const b = pixels[(y * videoElement.videoWidth + x) * 4 + 2];
+                maxColor = Math.max(maxColor, r, g, b);
+            }
+            return maxColor;
+        }
+
+        // Funkcia na vykreslenie čiar
+        function drawLine(color, colorOffset) {
+            graphCtx.beginPath();
+            for (let x = 0; x < pixelWidth; x++) {
+                let value = calculateAverageColor(x, colorOffset);
+                if (colorOffset === -1) {
+                    value = calculateMaxColor(x);
+                }
+                const y = height - padding - (value / yRange) * (height - 2 * padding);
+                const scaledX = padding + (x / pixelWidth) * (width - 2 * padding);
+
+                if (x === 0) {
+                    graphCtx.moveTo(scaledX, y);
+                } else {
+                    graphCtx.lineTo(scaledX, y);
+                }
+            }
+            graphCtx.strokeStyle = color;
+            graphCtx.lineWidth = 1;
+            graphCtx.stroke();
+        }
+
+        // Vykreslenie čiar pre jednotlivé farby
         if (toggleCombined) {
-            graphCtx.beginPath();
-            for (let x = 0; x < videoElement.videoWidth; x++) {
-                const r = calculateAverageColor(x, 0);
-                const g = calculateAverageColor(x, 1);
-                const b = calculateAverageColor(x, 2);
-                const maxVal = Math.max(r, g, b);
-                const y = height - padding - (maxVal / yRange) * (height - 2 * padding);
-
-                if (x === 0) {
-                    graphCtx.moveTo(padding + (x / videoElement.videoWidth) * (width - 2 * padding), y);
-                } else {
-                    graphCtx.lineTo(padding + (x / videoElement.videoWidth) * (width - 2 * padding), y);
-                }
-            }
-            graphCtx.strokeStyle = 'black';
-            graphCtx.lineWidth = 1;
-            graphCtx.stroke();
+            drawLine('black', -1);
         }
-
-        // Vykreslenie červenej, zelenej a modrej línie
         if (toggleR) {
-            graphCtx.beginPath();
-            for (let x = 0; x < videoElement.videoWidth; x++) {
-                const r = calculateAverageColor(x, 0);
-                const y = height - padding - (r / yRange) * (height - 2 * padding);
-
-                if (x === 0) {
-                    graphCtx.moveTo(padding + (x / videoElement.videoWidth) * (width - 2 * padding), y);
-                } else {
-                    graphCtx.lineTo(padding + (x / videoElement.videoWidth) * (width - 2 * padding), y);
-                }
-            }
-            graphCtx.strokeStyle = 'red';
-            graphCtx.lineWidth = 1;
-            graphCtx.stroke();
+            drawLine('red', 0);
         }
-
         if (toggleG) {
-            graphCtx.beginPath();
-            for (let x = 0; x < videoElement.videoWidth; x++) {
-                const g = calculateAverageColor(x, 1);
-                const y = height - padding - (g / yRange) * (height - 2 * padding);
-
-                if (x === 0) {
-                    graphCtx.moveTo(padding + (x / videoElement.videoWidth) * (width - 2 * padding), y);
-                } else {
-                    graphCtx.lineTo(padding + (x / videoElement.videoWidth) * (width - 2 * padding), y);
-                }
-            }
-            graphCtx.strokeStyle = 'green';
-            graphCtx.lineWidth = 1;
-            graphCtx.stroke();
+            drawLine('green', 1);
         }
-
         if (toggleB) {
-            graphCtx.beginPath();
-            for (let x = 0; x < videoElement.videoWidth; x++) {
-                const b = calculateAverageColor(x, 2);
-                const y = height - padding - (b / yRange) * (height - 2 * padding);
-
-                if (x === 0) {
-                    graphCtx.moveTo(padding + (x / videoElement.videoWidth) * (width - 2 * padding), y);
-                } else {
-                    graphCtx.lineTo(padding + (x / videoElement.videoWidth) * (width - 2 * padding), y);
-                }
-            }
-            graphCtx.strokeStyle = 'blue';
-            graphCtx.lineWidth = 1;
-            graphCtx.stroke();
+            drawLine('blue', 2);
         }
 
         requestAnimationFrame(drawGraphLine);
@@ -138,6 +128,39 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
     drawGraphLine();
 }
 
+// Funkcia na pridanie hodnoty X do zoznamu zoomu
+function addXValueToZoomList(x) {
+    if (zoomList.length === 2) {
+        return;
+    }
+    const graphCanvas = document.getElementById('graphCanvas');
+    const videoElement = document.getElementById('video');
+    const index = Math.floor((x - 30) / (graphCanvas.width - 60) * videoElement.videoWidth); // Calculate the index based on the X position
+
+    let insertIndex = zoomList.findIndex(value => value > index);
+    if (insertIndex === -1) {
+        zoomList.push(index);
+    } else {
+        zoomList.splice(insertIndex, 0, index);
+    }
+    console.log(zoomList);
+}
+
+// Event listener pre kliknutie na canvas
+const graphCanvas = document.getElementById('graphCanvas');
+graphCanvas.addEventListener('click', (event) => {
+    const rect = graphCanvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    addXValueToZoomList(x);
+});
+
+// Event listener pre resetovanie zoomu
+document.getElementById('resetZoomButton').addEventListener('click', () => {
+    zoomList = [];
+    console.log('Zoom list reset:', zoomList);
+});
+
+// Event listener pre zmenu šírky pásika
 document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
     checkbox.addEventListener('change', () => {
         if (videoElement) {
