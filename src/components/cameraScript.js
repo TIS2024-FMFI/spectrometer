@@ -19,7 +19,7 @@ async function startStream(deviceId) {
 
         // Makes sure the graph is drawn into its canvas the moment the stream starts
         videoElement.onloadedmetadata = () => {
-            plotRGBLineFromCamera(videoElement, getYPercentage());
+            plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
         };
     } catch (error) {
         console.error('Error accessing camera: ', error);
