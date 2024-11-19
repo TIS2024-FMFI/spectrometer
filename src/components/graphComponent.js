@@ -1,13 +1,22 @@
 // Slúži na priblíženie grafu na základe kliknutia na canvas
 let zoomList = [];
+// Sledovanie ID animácie
+let animationId;
 
 function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth = 1) {
+    // Zrušenie predchádzajúcej animácie, ak existuje
+    if (animationId) {
+        cancelAnimationFrame(animationId);
+        animationId = null; // Resetovanie ID
+    }
+
     const lineCanvas = document.createElement('canvas');
     lineCanvas.width = videoElement.videoWidth;
     lineCanvas.height = stripeWidth;
     const ctx = lineCanvas.getContext('2d', { willReadFrequently: true });
     const graphCanvas = document.getElementById('graphCanvas');
     const graphCtx = graphCanvas.getContext('2d', { willReadFrequently: true });
+
     const width = graphCanvas.width;
     const height = graphCanvas.height;
     const padding = 30; // Definujeme padding
@@ -123,7 +132,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
             drawLine('blue', 2);
         }
 
-        requestAnimationFrame(drawGraphLine);
+        animationId = requestAnimationFrame(drawGraphLine);
     }
     drawGraphLine();
 }
