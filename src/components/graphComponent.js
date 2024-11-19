@@ -48,20 +48,31 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         graphCtx.fillStyle = 'black';
 
         const yRange = 255; // Rozsah od 0 do 255
-        for (let i = 0; i <= 10; i++) {
-            const y = padding + ((height - 2 * padding) / 10) * i;
+        const numOfYLabels = 20;
+
+        for (let i = 0; i <= numOfYLabels; i++) {
+            const y = padding + ((height - 2 * padding) / numOfYLabels) * i;
             graphCtx.moveTo(padding, y);
             graphCtx.lineTo(width - padding, y);
-            const label = (255 - (i * (255 / 10))).toFixed(0); // Popisky od 0 do 255
+            const label = (255 - (i * (255 / numOfYLabels))).toFixed(0); // Popisky od 0 do 255
             let yOffset = 3;
             graphCtx.fillText(label, 5, y + yOffset);
         }
 
-        for (let i = 0; i <= 10; i++) {
-            const x = padding + ((width - 2 * padding) / 10) * i;
+        const toggleXLabelsPx = document.getElementById('toggleXLabelsPx').checked;
+        const numOfXLabels = 20;
+
+        for (let i = 0; i <= numOfXLabels; i++) {
+            const x = padding + ((width - 2 * padding) / numOfXLabels) * i;
             graphCtx.moveTo(x, padding);
             graphCtx.lineTo(x, height - padding);
-            const label = (zoomStart + (i * (zoomEnd - zoomStart) / 10)).toFixed(0); // Dynamické popisky podľa zoomu
+            let label;
+            if (!toggleXLabelsPx) {
+                const pixelValue = zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels);
+                label = getWaveLengthByPx(pixelValue).toFixed(0); // Convert pixel to nm
+            } else {
+                label = (zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels)).toFixed(0); // Pixel value
+            }
             graphCtx.fillText(label, x - 10, height - 5);
         }
 
