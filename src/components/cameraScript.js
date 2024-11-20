@@ -110,9 +110,6 @@ async function pausePlayVideo(){
     else{
         videoElement.play();
         button.innerText = "Pause";
-        // if (videoElement) {
-        //     plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
-        // }
     }
 }
 

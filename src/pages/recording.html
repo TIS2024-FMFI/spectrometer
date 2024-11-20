@@ -125,13 +125,13 @@
       <label for="toggleXLabelsNm">X-axis Labels (nm)</label>
       <input type="radio" id="toggleXLabelsNm" name="toggleXLabels" value="nm">
       <canvas id="graphCanvas" width="800" height="400"></canvas>
-      <script src="../components/graphComponent.js"></script>
+      <script src="../components/graphScript.js"></script>
     </div>
   </div>
 
 
 <!--  Buttons to navigate in the stepper  -->
-<div class="navigation-buttons">
+<div class="navigation-buttons" id="stepper-buttons">
   <button id="prevButton" onclick="changeStep(-1)" disabled>Previous</button>
   <button id="nextButton" onclick="changeStep(1)">Next</button>
 </div>
