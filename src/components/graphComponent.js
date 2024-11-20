@@ -97,14 +97,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
 
         // Funkcia na zistenie maximálnej farby pre kombinovaný graf
         function calculateMaxColor(x) {
-            let maxColor = 0;
-            for (let y = 0; y < stripeWidth; y++) {
-                const r = pixels[(y * videoElement.videoWidth + x) * 4];
-                const g = pixels[(y * videoElement.videoWidth + x) * 4 + 1];
-                const b = pixels[(y * videoElement.videoWidth + x) * 4 + 2];
-                maxColor = Math.max(maxColor, r, g, b);
-            }
-            return maxColor;
+            return Math.max(calculateAverageColor(x, 0), calculateAverageColor(x, 1), calculateAverageColor(x, 2));
         }
 
         // Funkcia na vykreslenie čiar

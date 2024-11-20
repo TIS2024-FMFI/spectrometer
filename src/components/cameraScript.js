@@ -111,14 +111,74 @@ async function pausePlayVideo(){
     else{
         videoElement.play();
         button.innerText = "Pause";
-        if (videoElement) {
-            plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
-        }
+        // if (videoElement) {
+        //     plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
+        // }
     }
 }
 
 // Request access and populate the camera list when the page loads
 requestCameraAccess();
+
+// ##################
+//    Graph save
+// ##################
+
+async function saveGraph() {
+    let wasPaused = false;
+    if(videoElement.paused){
+        wasPaused = true;
+    }
+    videoElement.pause();
+    // Získanie pixelov z aktuálneho pásika
+    const stripeWidth = getStripeWidth();
+    const videoWidth = videoElement.videoWidth;
+    const stripePosition = Math.floor(videoElement.videoHeight * getYPercentage());
+
+    const lineCanvas = document.createElement('canvas');
+    lineCanvas.width = videoWidth;
+    lineCanvas.height = stripeWidth;
+
+    const tempCtx = lineCanvas.getContext('2d');
+    tempCtx.drawImage(videoElement, 0, stripePosition, videoWidth, stripeWidth, 0, 0, videoWidth, stripeWidth);
+
+    const pixels = tempCtx.getImageData(0, 0, videoWidth, stripeWidth).data;
+
+    // Formátovanie dát do textového súboru
+    let output = "Pixel\tR\tG\tB\tMaxRGB\n";
+    for (let x = 0; x < videoWidth; x++) {
+        let rSum = 0, gSum = 0, bSum = 0;
+        for (let y = 0; y < stripeWidth; y++) {
+            const index = (y * videoWidth + x) * 4;
+            const r = pixels[index];
+            const g = pixels[index + 1];
+            const b = pixels[index + 2];
+            rSum += r;
+            gSum += g;
+            bSum += b;
+        }
+
+        // Priemerné hodnoty RGB pre daný pixel (vertikálne spriemerované)
+        const avgR = rSum / stripeWidth;
+        const avgG = gSum / stripeWidth;
+        const avgB = bSum / stripeWidth;
+        const maxRGB = Math.max(avgR, avgG, avgB, 0);
+
+        // Pridanie do výstupu
+        output += `${x+1}\t${avgR.toFixed(2)}\t${avgG.toFixed(2)}\t${avgB.toFixed(2)}\t${maxRGB.toFixed(2)}\n`;
+    }
+
+    const blob = new Blob([output], { type: 'text/plain' });
+    const link = document.createElement('a');
+
+    link.href = URL.createObjectURL(blob);
+    link.download = "fileName"; // Použitie názvu od používateľa
+    link.click();
+    URL.revokeObjectURL(link.href); // Uvoľnenie pamäte
+    if (!wasPaused) {
+        videoElement.play();
+    }
+}
 
 // ##################
 //    Canvas/Pasik
@@ -183,7 +243,7 @@ var c = document.getElementById("cameraWindowCanvasRecording");
 
 // Unless the Canvas is present, nothing will be done with it
 if (c != null) {
-    var ctx = c.getContext("2d");
+    var ctx = c.getContext("2d", { willReadFrequently: true });
     var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
     var stripeWidth = 1
     var videoWindow = document.getElementById("videoWindow");
