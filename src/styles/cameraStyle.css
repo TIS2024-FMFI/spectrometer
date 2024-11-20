@@ -1,4 +1,4 @@
-#cameraWindow{
+#cameraMainWindow, #cameraSelectWindow{
     margin: 10px 0 0 10px;
     width: 640px;
     height: 600px;
@@ -8,12 +8,12 @@
     margin-top: 20px;
     padding: 10px;
 }
-#videoWindow{
+#videoMainWindow, #videoSelectWindow {
     position: relative;
     width: 100%;
     height: 480px;
 }
-#video {
+#videoMain, #videoSelect {
     position: absolute;
     top: 0;
     left: 0;

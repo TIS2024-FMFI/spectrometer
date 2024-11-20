@@ -147,7 +147,7 @@ function addXValueToZoomList(x) {
         return;
     }
     const graphCanvas = document.getElementById('graphCanvas');
-    const videoElement = document.getElementById('video');
+    const videoElement = document.getElementById('videoMain');
     const index = Math.floor((x - 30) / (graphCanvas.width - 60) * videoElement.videoWidth); // Calculate the index based on the X position
 
     let insertIndex = zoomList.findIndex(value => value > index);
