@@ -5,24 +5,96 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recording</title>
+
+  <link rel="stylesheet" href="../styles/setupStyle.css">
   <link rel="stylesheet" href="../styles/recordingStyle.css">
   <link rel="stylesheet" href="../styles/cameraStyle.css">
 
+  <script src="../components/setupScript.js"></script>
+  <script src="../components/calibrationScript.js"></script>
+  <script src="../components/polynomialRegressionScript.js"></script>
+
 </head>
-<!--TODO change to camera name sent in-->
-<body onload="changeCamera('')">
-  <div class="top-left-container">
-    <h1 class="title">Recording Page</h1>
+<body>
+
+<!-- Step 1 Camera selection & Pasik selection -->
+<div id="step1" class="step-container active">
+  <p>Step 1: Camera Selection</p>
+
+  <div id="cameraSelectWindow">
+    <div id="videoSelectWindow">
+      <video id="videoSelect" autoplay playsinline></video>
+    </div>
+    <div id="cameraWindowControlsOnSetUp">
+      <select id="cameraSelect"></select>
+      <button onclick="getCameras()">Refresh</button>
+    </div>
+  </div>
+</div>
+
+<!-- Step 2 Camera calibration -->
+<div id="step2" class="step-container">
+  <p>Step 2: Camera calibration</p>
+  <div style="display:flex">
+    <div style="width: 150px; text-align: right">px</div>
+    <div style="width: 180px; text-align: right">nm</div>
+  </div>
+
+  <div id="input-container">
+    <div>
+      point 1:
+      <label for="point1px"></label>
+      <input id="point1px" type="number"/>
+
+      <label for="point1nm"></label>
+      <input id="point1nm" type="number"/>
+    </div>
+
+    <div>
+      point 2:
+      <label for="point2px"></label>
+      <input id="point2px" type="number"/>
+
+      <label for="point2nm"></label>
+      <input id="point2nm" type="number"/>
+    </div>
+
+    <div>
+      point 3:
+      <label for="point3px"></label>
+      <input id="point3px" type="number"/>
+
+      <label for="point3nm"></label>
+      <input id="point3nm" type="number"/>
+    </div>
+  </div>
+
+  <div>
+    <button id="addPoints" onclick="addInputPair()">Add calibration points</button>
+    <button id="removePoints" onclick="removeInputPair(this)">remove calibration points</button>
+    <button id="calibrateButton" onclick="setCalibrationPoints()">Calibrate</button>
+    <button id="resetCalibrationPoints" onclick="resetCalibrationPoints()">Reset calibration points</button>
+  </div>
+
+  <div>
+    <button id="exportCalibrationSettings" onclick="exportCalibrationFile()">Export calibration settings</button>
+    <input type="file" name="my_file" id="my-file" onchange="importCalibrationFile()">
+  </div>
+</div>
+
+<!-- Step 3 Recording limitation -->
+<div id="step3" class="step-container">
+    <p>Recording</p>
     <nav class="nav-menu">
       <ul>
         <li><a href="index.html" class="btn">Home</a></li>
-        <li><a href="setup.html" class="btn">New Recording</a></li>
+        <li><a href="recording.html" class="btn">New Recording</a></li>
       </ul>
     </nav>
 
-    <div id="cameraWindow">
-      <div id="videoWindow">
-        <video id="video" autoplay playsinline></video>
+    <div id="cameraMainWindow">
+      <div id="videoMainWindow">
+        <video id="videoMain" autoplay playsinline></video>
         <!--TODO Refresh for safari-->
         <canvas id="cameraWindowCanvasRecording" >Your browser does not support the HTML canvas tag.</canvas>
       </div>
@@ -53,9 +125,15 @@
       <label for="toggleXLabelsNm">X-axis Labels (nm)</label>
       <input type="radio" id="toggleXLabelsNm" name="toggleXLabels" value="nm">
       <canvas id="graphCanvas" width="800" height="400"></canvas>
-      <script src="../components/graphComponent.js"></script>
+      <script src="../components/graphScript.js"></script>
     </div>
-
   </div>
+
+
+<!--  Buttons to navigate in the stepper  -->
+<div class="navigation-buttons" id="stepper-buttons">
+  <button id="prevButton" onclick="changeStep(-1)" disabled>Previous</button>
+  <button id="nextButton" onclick="changeStep(1)">Next</button>
+</div>
 </body>
 </html>

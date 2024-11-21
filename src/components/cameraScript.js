@@ -2,7 +2,7 @@
 //    Video
 // ###########
 
-const videoElement = document.getElementById('video');
+let videoElement = document.getElementById('videoSelect');
 const cameraSelect = document.getElementById('cameraSelect');
 let cameraUsed = "";
 
@@ -91,7 +91,6 @@ async function changeCamera(cameraName) {
             startStream(targetDevice.deviceId);
             cameraUsed = targetDevice.deviceId;
         } else {
-            //TEMP remove
             if (videoDevices.length > 0) {
                 startStream(videoDevices[0].deviceId);
                 cameraUsed = videoDevices[0].deviceId;
@@ -111,9 +110,6 @@ async function pausePlayVideo(){
     else{
         videoElement.play();
         button.innerText = "Pause";
-        // if (videoElement) {
-        //     plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
-        // }
     }
 }
 
@@ -242,35 +238,33 @@ function drawSelectionLine() {
 var c = document.getElementById("cameraWindowCanvasRecording");
 
 // Unless the Canvas is present, nothing will be done with it
-if (c != null) {
-    var ctx = c.getContext("2d", { willReadFrequently: true });
-    var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
-    var stripeWidth = 1
-    var videoWindow = document.getElementById("videoWindow");
-    var computedStyle = getComputedStyle(videoWindow);
+var ctx = c.getContext("2d", { willReadFrequently: true });
+var yPercentage = 0.5; // Global variable representing Y position as a percentage (default to 50%)
+var stripeWidth = 1
+var videoWindow = document.getElementById("videoMainWindow");
+var computedStyle = getComputedStyle(videoWindow);
 
-    c.width = parseInt(computedStyle.width, 10);
-    c.height = parseInt(computedStyle.height, 10);
-    //set max width of stripe
-    document.getElementById("stripeWidthRange").max = c.height;
+c.width = parseInt(computedStyle.width, 10);
+c.height = parseInt(computedStyle.height, 10);
+//set max width of stripe
+document.getElementById("stripeWidthRange").max = c.height;
 
 // Event listener for mouse clicks on the canvas
-    c.addEventListener("click", function (event) {
-        var rect = c.getBoundingClientRect(); // Get canvas position
-        var y = event.clientY - rect.top; // Calculate Y within canvas
-        if (y < getStripeWidth()/2){
-            y = getStripeWidth()/2;
-        }
-        else if (y + getStripeWidth()/2 > c.height){
-            y = c.height - getStripeWidth()/2;
-        }
-        yPercentage = y / c.height; // Update global variable as percentage
-        drawSelectionLine(); // Redraw line at the new position
-        if (videoElement) {
-            plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
-        }
-    });
+c.addEventListener("click", function (event) {
+    var rect = c.getBoundingClientRect(); // Get canvas position
+    var y = event.clientY - rect.top; // Calculate Y within canvas
+    if (y < getStripeWidth()/2){
+        y = getStripeWidth()/2;
+    }
+    else if (y + getStripeWidth()/2 > c.height){
+        y = c.height - getStripeWidth()/2;
+    }
+    yPercentage = y / c.height; // Update global variable as percentage
+    drawSelectionLine(); // Redraw line at the new position
+    if (videoElement) {
+        plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
+    }
+});
 
-    // Initial draw of the line at the default percentage
-    drawSelectionLine();    // Initial draw of the line at the default percentage
-}
+// Initial draw of the line at the default percentage
+drawSelectionLine();    // Initial draw of the line at the default percentage

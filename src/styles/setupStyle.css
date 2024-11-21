@@ -82,3 +82,7 @@ body, html {
 .navigation-buttons {
     margin-top: 20px;
 }
+
+#stepper-buttons.disabled {
+    display: none;
+}
