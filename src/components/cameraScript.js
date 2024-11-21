@@ -158,15 +158,6 @@ function startCameraCapture(){
         return;
     }
 
-    // const graphCanvas = document.getElementById('graphCanvas');
-    // const imageData = graphCanvas.toDataURL('image/png'); // Získa Base64 reťazec obrázka
-    //
-    // // Vytvorenie dočasného odkazu na stiahnutie
-    // const link = document.createElement('a');
-    // link.href = imageData;
-    // link.download = 'graph.png'; // Názov uloženého súboru
-    // link.click();
-
     const zip = new JSZip();
     const images = [];
     let imageIndex = 0;
@@ -217,7 +208,15 @@ function startCameraCapture(){
 //    Graph save
 // ##################
 
-async function saveGraph() {
+function openGraphSaver(){
+    document.getElementById("graphSaverOption").style.display = "block";
+}
+
+function closeGraphSaver(){
+    document.getElementById("graphSaverOption").style.display = "none";
+}
+
+async function saveGraphTXT() {
     let wasPaused = false;
     if(videoElement.paused){
         wasPaused = true;
@@ -271,6 +270,17 @@ async function saveGraph() {
     if (!wasPaused) {
         videoElement.play();
     }
+}
+
+function saveGraphImage(){
+    const graphCanvas = document.getElementById('graphCanvas');
+    const imageData = graphCanvas.toDataURL('image/png'); // Získa Base64 reťazec obrázka
+
+    // Vytvorenie dočasného odkazu na stiahnutie
+    const link = document.createElement('a');
+    link.href = imageData;
+    link.download = 'graph.png'; // Názov uloženého súboru
+    link.click();
 }
 
 // ##################
