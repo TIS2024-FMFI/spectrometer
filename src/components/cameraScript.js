@@ -273,6 +273,22 @@ async function saveGraphTXT() {
 }
 
 function saveGraphImage(){
+    const checkboxCombined = document.getElementById("toggleCombined");
+    const checkboxRed = document.getElementById("toggleR");
+    const checkboxGreen = document.getElementById("toggleG");
+    const checkboxBlue = document.getElementById("toggleB");
+
+    if (!checkboxCombined.checked && !checkboxRed.checked && !checkboxGreen.checked && !checkboxBlue.checked) {
+        alert("At least one checkbox with a color must be checked!");
+        return;
+    }
+
+    let wasPaused = false;
+    if(videoElement.paused){
+        wasPaused = true;
+    }
+    videoElement.pause();
+
     const graphCanvas = document.getElementById('graphCanvas');
     const imageData = graphCanvas.toDataURL('image/png'); // Získa Base64 reťazec obrázka
 
@@ -281,6 +297,10 @@ function saveGraphImage(){
     link.href = imageData;
     link.download = 'graph.png'; // Názov uloženého súboru
     link.click();
+
+    if (!wasPaused) {
+        videoElement.play();
+    }
 }
 
 // ##################
