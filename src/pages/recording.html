@@ -13,6 +13,8 @@
   <script src="../components/setupScript.js"></script>
   <script src="../components/calibrationScript.js"></script>
   <script src="../components/polynomialRegressionScript.js"></script>
+  <script src="../components/zipScript.js"></script>
+<!--  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>-->
 
 </head>
 <body>
@@ -106,10 +108,37 @@
         <input type="range" id="stripeWidthRange" min="1" max="255" value="1" onchange="updateStripeWidth(this.value)">
         <button onclick="increaseStripeWidth()">+</button>
         <span id="stripeWidthValue">1</span> px
-        <button onclick="saveGraph()">Save Graph</button>
+        <div id="graphSaver">
+          <button onclick="openGraphSaver()">Save Graph</button>
+          <div id="graphSaverOption" style="display: none">
+            <button onclick="closeGraphSaver()">close</button>
+            <button onclick="saveGraphTXT()">as text</button>
+            <button onclick="saveGraphImage()">as image</button>
+          </div>
+        </div>
+        <button onclick="openCameraExposure()">Camera Exposure</button>
       </div>
 
       <script src="../components/cameraScript.js"></script>
+    </div>
+
+    <div id="cameraExposureWindow" style="display: none">
+      <button onclick="closeCameraExposure()">close</button>
+      <br>
+      <label for="NumOfSamples">
+        <span>Number of Captures</span>
+        <!--TODO max number fo captures-->
+        <input type="number" id="NumOfSamples" name="NumOfSamples" min="1" value="5">
+      </label>
+      <br>
+      <label for="timeOfPause">
+        <span>Pause in between captures </span>
+        <!--TODO max time of pause-->
+        <input type="number" id="timeOfPause" name="timeOfPause" min="1" value="100">
+        <span>(in ms.)</span>
+      </label>
+      <br>
+      <button onclick="startCameraCapture()">Capture</button>
     </div>
 
     <div id="graphWindow">

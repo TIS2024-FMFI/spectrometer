@@ -116,11 +116,107 @@ async function pausePlayVideo(){
 // Request access and populate the camera list when the page loads
 requestCameraAccess();
 
+// #####################
+//    Camera Exposure
+// #####################
+
+function openCameraExposure(){
+    const window = document.getElementById("cameraExposureWindow");
+    window.style.display = "block";
+}
+
+function closeCameraExposure(){
+    const window = document.getElementById("cameraExposureWindow");
+    window.style.display = "none";
+}
+
+function startCameraCapture(){
+    if (videoElement.paused){
+        alert("Camera is paused! To start capture please unpause the camera!");
+        return;
+    }
+
+    const inputRange = document.getElementById("NumOfSamples").value;
+    const inputTime = document.getElementById("timeOfPause").value;
+    const checkboxCombined = document.getElementById("toggleCombined");
+    const checkboxRed = document.getElementById("toggleR");
+    const checkboxGreen = document.getElementById("toggleG");
+    const checkboxBlue = document.getElementById("toggleB");
+
+    if (isNaN(inputRange) || inputRange <= 0) {
+        alert("Number of captures must be a number greater than 0!");
+        document.getElementById("NumOfSamples").focus();
+        return;
+    }
+    if (isNaN(inputTime) || inputTime <= 0) {
+        alert("Pause in between captures must be a number greater than 0!");
+        document.getElementById("timeOfPause").focus();
+        return;
+    }
+    if (!checkboxCombined.checked && !checkboxRed.checked && !checkboxGreen.checked && !checkboxBlue.checked) {
+        alert("At least one checkbox with a color must be checked!");
+        return;
+    }
+
+    const zip = new JSZip();
+    const images = [];
+    let imageIndex = 0;
+
+    // Funkcia na vytvorenie jednej snímky
+    async function captureGraph() {
+        await videoElement.play();
+        await new Promise(resolve => setTimeout(resolve, 200)); // Čaká 200 ms (upraviť podľa potreby)
+        await videoElement.pause();
+        console.log("snap");
+        const imageData = graphCanvas.toDataURL('image/png');
+        images.push({ name: `graph_${imageIndex + 1}.png`, data: imageData });
+        imageIndex++;
+
+        if (imageIndex < inputRange) {
+            setTimeout(captureGraph, inputTime); // Čaká a robí ďalšiu snímku
+        } else {
+            videoElement.play();
+            createZip(); // Po poslednej snímke vytvor ZIP
+        }
+    }
+
+    // Funkcia na vytvorenie ZIP súboru
+    function createZip() {
+        images.forEach(image => {
+            // Pridanie každej snímky do ZIP súboru
+            zip.file(image.name, image.data.split(',')[1], { base64: true });
+        });
+
+        // Generovanie ZIP a jeho stiahnutie
+        zip.generateAsync({ type: 'blob' }).then(function (content) {
+            const url = URL.createObjectURL(content); // Vytvorenie URL z blobu
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'graphs.zip'; // Názov ZIP súboru
+            link.click();
+
+            // Uvoľnenie pamäte pre URL
+            URL.revokeObjectURL(url);
+        });
+    }
+
+    // Začať sekvenciu snímok
+    captureGraph();
+}
+
 // ##################
 //    Graph save
 // ##################
 
-async function saveGraph() {
+function openGraphSaver(){
+    document.getElementById("graphSaverOption").style.display = "block";
+}
+
+function closeGraphSaver(){
+    document.getElementById("graphSaverOption").style.display = "none";
+}
+
+async function saveGraphTXT() {
     let wasPaused = false;
     if(videoElement.paused){
         wasPaused = true;
@@ -171,6 +267,37 @@ async function saveGraph() {
     link.download = "fileName"; // Použitie názvu od používateľa
     link.click();
     URL.revokeObjectURL(link.href); // Uvoľnenie pamäte
+    if (!wasPaused) {
+        videoElement.play();
+    }
+}
+
+function saveGraphImage(){
+    const checkboxCombined = document.getElementById("toggleCombined");
+    const checkboxRed = document.getElementById("toggleR");
+    const checkboxGreen = document.getElementById("toggleG");
+    const checkboxBlue = document.getElementById("toggleB");
+
+    if (!checkboxCombined.checked && !checkboxRed.checked && !checkboxGreen.checked && !checkboxBlue.checked) {
+        alert("At least one checkbox with a color must be checked!");
+        return;
+    }
+
+    let wasPaused = false;
+    if(videoElement.paused){
+        wasPaused = true;
+    }
+    videoElement.pause();
+
+    const graphCanvas = document.getElementById('graphCanvas');
+    const imageData = graphCanvas.toDataURL('image/png'); // Získa Base64 reťazec obrázka
+
+    // Vytvorenie dočasného odkazu na stiahnutie
+    const link = document.createElement('a');
+    link.href = imageData;
+    link.download = 'graph.png'; // Názov uloženého súboru
+    link.click();
+
     if (!wasPaused) {
         videoElement.play();
     }
