@@ -30,7 +30,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         if (videoElement.ended) return;
 
         // Určíme počiatočnú pozíciu pásika
-        const startY = Math.floor(videoElement.videoHeight * stripePosition);
+        const startY = videoElement.videoHeight * stripePosition - stripeWidth / 2;
         ctx.drawImage(videoElement, 0, startY, videoElement.videoWidth, stripeWidth, 0, 0, videoElement.videoWidth, stripeWidth);
 
         // Získame pixely pre zadaný pásik (s výškou stripeWidth)
