@@ -1,0 +1,28 @@
+{
+  "index-title": "ESPECTRÔMETRO",
+  "start-button": "Iniciar",
+  "tutorial-button": "Como",
+  "select-language": "Selecionar idioma",
+  "language-button": "Aplicar",
+
+  "setup-title": "Configuração",
+  "step1-title": "Passo 1: Seleção da câmera e faixa",
+  "refresh-button": "Atualizar",
+  "step2-title": "Passo 2: Calibração da câmera",
+  "addCalPoints-button": "Adicionar pontos de calibração",
+  "removeCalPoints-button-button": "Remover pontos de calibração",
+  "calibrate-button": "Calibrar",
+  "reset-button": "Redefinir",
+  "export-button": "Exportar configurações de calibração",
+  "step3-title": "Passo 3: Limitação de gravação",
+  "record-button": "Gravar",
+  "previous-button": "Anterior",
+  "next-button": "Próximo",
+
+  "recording-title": "Página de Configuração",
+  "home-button": "Início",
+  "newRecording-button": "Nova gravação",
+  "canvas-warning": "Seu navegador não suporta a tag HTML canvas.",
+  "pause-button": "Pausar",
+  "stripe-width": "Largura da faixa"
+}

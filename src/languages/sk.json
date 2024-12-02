@@ -1,0 +1,28 @@
+{
+  "index-title": "SPEKTROMETER",
+  "start-button": "Spustiť",
+  "tutorial-button": "Ako na to",
+  "select-language": "Vyberte jazyk",
+  "language-button": "Použiť",
+
+  "setup-title": "Nastavenie",
+  "step1-title": "Krok 1: Výber kamery a pásu",
+  "refresh-button": "Obnoviť",
+  "step2-title": "Krok 2: Kalibrácia kamery",
+  "addCalPoints-button": "Pridať kalibračné body",
+  "removeCalPoints-button-button": "Odstrániť kalibračné body",
+  "calibrate-button": "Kalibrovať",
+  "reset-button": "Resetovať",
+  "export-button": "Exportovať nastavenia kalibrácie",
+  "step3-title": "Krok 3: Obmedzenie nahrávania",
+  "record-button": "Nahrať",
+  "previous-button": "Predchádzajúce",
+  "next-button": "Ďalej",
+
+  "recording-title": "Stránka nastavení",
+  "home-button": "Domov",
+  "newRecording-button": "Nové nahrávanie",
+  "canvas-warning": "Váš prehliadač nepodporuje značku HTML canvas.",
+  "pause-button": "Pozastaviť",
+  "stripe-width": "Šírka pásu"
+}

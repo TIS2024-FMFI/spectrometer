@@ -1,0 +1,29 @@
+{
+  "index-title": "SPECTROMETER",
+  "start-button": "Start",
+  "tutorial-button": "How",
+  "select-language": "Select Language",
+  "language-button": "Apply",
+
+  "setup-title": "Setup",
+  "step1-title": "Step 1: Camera Selection & Stripe",
+  "refresh-button": "Refresh",
+  "step2-title": "Step 2: Camera calibration",
+  "addCalPoints-button": "Add calibration points",
+  "removeCalPoints-button-button": "Remove calibration points",
+  "calibrate-button": "Calibrate",
+  "reset-button": "Reset",
+  "export-button": "Export calibration settings",
+  "step3-title": "Step 3: Recording limitation",
+  "record-button": "Record",
+  "previous-button": "Previous",
+  "next-button": "Next",
+
+  "recording-title": "Setup Page",
+  "home-button": "Home",
+  "newRecording-button": "New Recording",
+  "canvas-warning": "Your browser does not support the HTML canvas tag.",
+  "pause-button": "Pause",
+  "stripe-width": "Stripe width"
+
+}

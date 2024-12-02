@@ -8,11 +8,24 @@
   <link rel="stylesheet" href="../styles/indexStyle.css">
 </head>
 <body>
+
+<div id="languageContainer">
+  <label data-translate="select-language" for="language">Select Language:</label>
+  <select id="language">
+    <option value="en">English</option>
+    <option value="es">Español</option>
+    <option value="sk">Slovak</option>
+  </select>
+  <button data-translate="language-button" id="apply-language">Apply</button>
+  <script src="../components/languageScript.js"></script>
+</div>
+
+
 <div class="title-container">
-  <h1 class="title">SPEKTROMETER</h1>
+  <h1 data-translate="index-title" class="title">SPECTROMETER</h1>
   <div class="button-container">
-    <a href="recording.html" class="btn">Start</a>
-    <a href="tutorial.html" class="btn">How To</a>
+    <a data-translate="setup-button" href="recording.html" class="btn">Start</a>
+    <a data-translate="tutorial-button" href="tutorial.html" class="btn">How To</a>
   </div>
 </div>
 </body>
