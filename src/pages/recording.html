@@ -9,6 +9,7 @@
   <link rel="stylesheet" href="../styles/setupStyle.css">
   <link rel="stylesheet" href="../styles/recordingStyle.css">
   <link rel="stylesheet" href="../styles/cameraStyle.css">
+  <link rel="stylesheet" href="../styles/graphStyle.css">
 
   <script src="../components/setupScript.js"></script>
   <script src="../components/calibrationScript.js"></script>
@@ -143,13 +144,13 @@
       <button data-translate="capture-button" onclick="startCameraCapture()">Capture</button>
     </div>
 
-    <div id="graphWindow">
-      <div id="checkboxWindow">
+    <div id="checkboxWindow">
         <label data-translate="checkbox-comb"><input type="checkbox" id="toggleCombined" checked> Combined</label>
         <label><input type="checkbox" id="toggleR"> R</label>
         <label><input type="checkbox" id="toggleG"> G</label>
         <label><input type="checkbox" id="toggleB"> B</label>
-      </div>
+    </div>
+    <div id="graphWindow">
       <button id="resetZoomButton">Reset Zoom</button>
       <label for="toggleXLabelsPx">X-axis Labels (px)</label>
       <input type="radio" id="toggleXLabelsPx" name="toggleXLabels" value="px" checked>
@@ -157,6 +158,8 @@
       <input type="radio" id="toggleXLabelsNm" name="toggleXLabels" value="nm">
       <canvas id="graphCanvas" width="800" height="400"></canvas>
       <script src="../components/graphScript.js"></script>
+      <canvas id="stripeCanvas" width="800" height="50"></canvas>
+      <script src="../components/cameraSelection.js"></script>
     </div>
   </div>
 
