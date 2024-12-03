@@ -5,24 +5,33 @@
   "select-language": "Selecionar idioma",
   "language-button": "Aplicar",
 
-  "setup-title": "Configuração",
-  "step1-title": "Passo 1: Seleção da câmera e faixa",
+  "step1-title": "Passo 1: Seleção de câmera e faixa",
   "refresh-button": "Atualizar",
+
   "step2-title": "Passo 2: Calibração da câmera",
   "addCalPoints-button": "Adicionar pontos de calibração",
-  "removeCalPoints-button-button": "Remover pontos de calibração",
+  "removeCalPoints-button": "Remover pontos de calibração",
   "calibrate-button": "Calibrar",
   "reset-button": "Redefinir",
   "export-button": "Exportar configurações de calibração",
-  "step3-title": "Passo 3: Limitação de gravação",
+
+  "recording-title": "Gravação",
   "record-button": "Gravar",
   "previous-button": "Anterior",
   "next-button": "Próximo",
 
-  "recording-title": "Página de Configuração",
   "home-button": "Início",
-  "newRecording-button": "Nova gravação",
-  "canvas-warning": "Seu navegador não suporta a tag HTML canvas.",
+  "newRecording-button": "Nova Gravação",
+  "canvas-warning": "Seu navegador não suporta a tag canvas do HTML.",
   "pause-button": "Pausar",
-  "stripe-width": "Largura da faixa"
+  "stripe-width": "Largura da faixa",
+  "saveGraph-button": "Salvar gráfico",
+  "close-button": "Fechar",
+  "saveText-button": "como texto",
+  "saveImage-button": "como imagem",
+  "camExp-button": "Exposição da câmera",
+  "numOfCap": "Número de capturas",
+  "pauseBetCap": "Pausa entre capturas",
+  "capture-button": "Capturar",
+  "checkbox-comb": "Combinado"
 }

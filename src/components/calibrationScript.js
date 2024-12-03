@@ -122,9 +122,7 @@ function calibrate() {
     }
     else if (nmCalPoints.length > 3) {
         polyFitCoefficientsArray = polyfit.computeCoefficients(3);
-    }
-    console.log(convertPxAxisIntoNm());
-}
+    }}
 
 /**
  * Gets the wave Length from the pixel
