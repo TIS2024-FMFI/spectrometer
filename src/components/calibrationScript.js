@@ -3,11 +3,11 @@
  * @type {number}
  */
 let inputBoxCounter = 3;
-
 let polyFitCoefficientsArray = [];
 let calibrationData = [];
 let pixelCalPoints = [];
 let nmCalPoints = [];
+let nMAxis = []
 
 /**
  *Adds a pair of input boxes
@@ -122,14 +122,13 @@ function calibrate() {
     }
     else if (nmCalPoints.length > 3) {
         polyFitCoefficientsArray = polyfit.computeCoefficients(3);
-    }
-}
+    }}
 
 /**
  * Gets the wave Length from the pixel
  */
 function getWaveLengthByPx(pixel) {
-    let waveLength = 0; // ?????
+    let waveLength = 0;
     for (let i = 0; i < polyFitCoefficientsArray.length; i++) {
         let number = parseFloat(polyFitCoefficientsArray[i]);
         if (i === 0) {
@@ -150,6 +149,7 @@ function resetCalValues() {
     calibrationData = [];
     pixelCalPoints = [];
     nmCalPoints = [];
+    nMAxis = [];
 }
 
 /**
@@ -221,6 +221,16 @@ function importCalibrationFile() {
 }
 
 /**
+ * Converts the Px Axis into Nm using with the help of the calibration points
+ * @returns {*[]}
+ */
+function convertPxAxisIntoNm(){
+    for (let i = 1; i <= 1920; i++) {
+        nMAxis.push(getWaveLengthByPx(i));
+    }
+    return nMAxis;
+}
+/**
  * Empties the input boxes and removes all the additional ones
  */
 function resetCalibrationPoints() {
@@ -229,4 +239,10 @@ function resetCalibrationPoints() {
     inputBoxCounter = 3;
 }
 
-
+/**
+ * Checks if calibrations were filled
+ * @returns {boolean}
+ */
+function canChangeStep() {
+    return Array.isArray(calibrationData) && calibrationData.length >= 3;
+}
