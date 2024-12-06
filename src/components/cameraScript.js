@@ -119,6 +119,7 @@ requestCameraAccess();
 // #####################
 //    Camera Exposure
 // #####################
+let isRecording = false; // Flag to track recording state
 
 function openCameraExposure(){
     const window = document.getElementById("cameraExposureWindow");
@@ -128,6 +129,22 @@ function openCameraExposure(){
 function closeCameraExposure(){
     const window = document.getElementById("cameraExposureWindow");
     window.style.display = "none";
+}
+
+function showCameraRecordingWindow(){
+    document.getElementById("cameraRecordingIsOn").style.display = "block";
+}
+
+function  closeCameraRecordingWindow(){
+    document.getElementById("cameraRecordingIsOn").style.display = "none";
+}
+
+function stopOngoingRecording(){
+    if (isRecording) {
+        isRecording = false; // Set flag to false to stop recording
+        videoElement.play(); // Resume video playback
+        closeCameraRecordingWindow();
+    }
 }
 
 function startCameraCapture(){
@@ -142,14 +159,15 @@ function startCameraCapture(){
     const checkboxRed = document.getElementById("toggleR");
     const checkboxGreen = document.getElementById("toggleG");
     const checkboxBlue = document.getElementById("toggleB");
+    const checkboxGraph = document.getElementById("screenshotOfGraph");
 
     if (isNaN(inputRange) || inputRange <= 0) {
         alert("Number of captures must be a number greater than 0!");
         document.getElementById("NumOfSamples").focus();
         return;
     }
-    if (isNaN(inputTime) || inputTime <= 0) {
-        alert("Pause in between captures must be a number greater than 0!");
+    if (isNaN(inputTime) || inputTime < 200) {
+        alert("Pause in between captures must be a greater/equal than 200!");
         document.getElementById("timeOfPause").focus();
         return;
     }
@@ -164,16 +182,36 @@ function startCameraCapture(){
 
     // Funkcia na vytvorenie jednej snímky
     async function captureGraph() {
+        if(!isRecording){
+            return;
+        }
+
         await videoElement.play();
         await new Promise(resolve => setTimeout(resolve, 200)); // Čaká 200 ms (upraviť podľa potreby)
         await videoElement.pause();
-        console.log("snap");
-        const imageData = graphCanvas.toDataURL('image/png');
-        images.push({ name: `graph_${imageIndex + 1}.png`, data: imageData });
+
+        // Capture video frame
+        const videoCanvas = document.createElement('canvas');
+        const ctx = videoCanvas.getContext('2d');
+        videoCanvas.width = videoElement.videoWidth;
+        videoCanvas.height = videoElement.videoHeight;
+        ctx.drawImage(videoElement, 0, 0, videoCanvas.width, videoCanvas.height);
+        const videoImageData = videoCanvas.toDataURL('image/png');
+        images.push({ name: `video_frame_${imageIndex + 1}.png`, data: videoImageData });
+
+        // Optionally capture graph if checkbox is checked
+        if (checkboxGraph.checked) {
+            const graphImageData = graphCanvas.toDataURL('image/png');
+            images.push({ name: `graph_${imageIndex + 1}.png`, data: graphImageData });
+        }
+
         imageIndex++;
+        if(!isRecording){
+            return;
+        }
 
         if (imageIndex < inputRange) {
-            setTimeout(captureGraph, inputTime); // Čaká a robí ďalšiu snímku
+            setTimeout(captureGraph, inputTime-200); // Čaká a robí ďalšiu snímku
         } else {
             videoElement.play();
             createZip(); // Po poslednej snímke vytvor ZIP
@@ -182,6 +220,10 @@ function startCameraCapture(){
 
     // Funkcia na vytvorenie ZIP súboru
     function createZip() {
+        if(!isRecording){
+            return;
+        }
+
         images.forEach(image => {
             // Pridanie každej snímky do ZIP súboru
             zip.file(image.name, image.data.split(',')[1], { base64: true });
@@ -198,8 +240,14 @@ function startCameraCapture(){
             // Uvoľnenie pamäte pre URL
             URL.revokeObjectURL(url);
         });
+
+        isRecording = false;
+        closeCameraRecordingWindow();
     }
 
+    isRecording = true; // Set flag to true to start recording
+    closeCameraExposure();
+    showCameraRecordingWindow();
     // Začať sekvenciu snímok
     captureGraph();
 }
@@ -207,70 +255,6 @@ function startCameraCapture(){
 // ##################
 //    Graph save
 // ##################
-
-function openGraphSaver(){
-    document.getElementById("graphSaverOption").style.display = "block";
-}
-
-function closeGraphSaver(){
-    document.getElementById("graphSaverOption").style.display = "none";
-}
-
-async function saveGraphTXT() {
-    let wasPaused = false;
-    if(videoElement.paused){
-        wasPaused = true;
-    }
-    videoElement.pause();
-    // Získanie pixelov z aktuálneho pásika
-    const stripeWidth = getStripeWidth();
-    const videoWidth = videoElement.videoWidth;
-    const stripePosition = Math.floor(videoElement.videoHeight * getYPercentage());
-
-    const lineCanvas = document.createElement('canvas');
-    lineCanvas.width = videoWidth;
-    lineCanvas.height = stripeWidth;
-
-    const tempCtx = lineCanvas.getContext('2d');
-    tempCtx.drawImage(videoElement, 0, stripePosition, videoWidth, stripeWidth, 0, 0, videoWidth, stripeWidth);
-
-    const pixels = tempCtx.getImageData(0, 0, videoWidth, stripeWidth).data;
-
-    // Formátovanie dát do textového súboru
-    let output = "Pixel\tR\tG\tB\tMaxRGB\n";
-    for (let x = 0; x < videoWidth; x++) {
-        let rSum = 0, gSum = 0, bSum = 0;
-        for (let y = 0; y < stripeWidth; y++) {
-            const index = (y * videoWidth + x) * 4;
-            const r = pixels[index];
-            const g = pixels[index + 1];
-            const b = pixels[index + 2];
-            rSum += r;
-            gSum += g;
-            bSum += b;
-        }
-
-        // Priemerné hodnoty RGB pre daný pixel (vertikálne spriemerované)
-        const avgR = rSum / stripeWidth;
-        const avgG = gSum / stripeWidth;
-        const avgB = bSum / stripeWidth;
-        const maxRGB = Math.max(avgR, avgG, avgB, 0);
-
-        // Pridanie do výstupu
-        output += `${x+1}\t${avgR.toFixed(2)}\t${avgG.toFixed(2)}\t${avgB.toFixed(2)}\t${maxRGB.toFixed(2)}\n`;
-    }
-
-    const blob = new Blob([output], { type: 'text/plain' });
-    const link = document.createElement('a');
-
-    link.href = URL.createObjectURL(blob);
-    link.download = "fileName"; // Použitie názvu od používateľa
-    link.click();
-    URL.revokeObjectURL(link.href); // Uvoľnenie pamäte
-    if (!wasPaused) {
-        videoElement.play();
-    }
-}
 
 function saveGraphImage(){
     const checkboxCombined = document.getElementById("toggleCombined");
@@ -289,12 +273,46 @@ function saveGraphImage(){
     }
     videoElement.pause();
 
-    const graphCanvas = document.getElementById('graphCanvas');
-    const imageData = graphCanvas.toDataURL('image/png'); // Získa Base64 reťazec obrázka
+    const graphImageData = graphCanvas.toDataURL('image/png');
 
     // Vytvorenie dočasného odkazu na stiahnutie
     const link = document.createElement('a');
-    link.href = imageData;
+    link.href = graphImageData;
+    link.download = 'graph.png'; // Názov uloženého súboru
+    link.click();
+
+    if (!wasPaused) {
+        videoElement.play();
+    }
+}
+
+function saveCameraImage(){
+    const checkboxCombined = document.getElementById("toggleCombined");
+    const checkboxRed = document.getElementById("toggleR");
+    const checkboxGreen = document.getElementById("toggleG");
+    const checkboxBlue = document.getElementById("toggleB");
+
+    if (!checkboxCombined.checked && !checkboxRed.checked && !checkboxGreen.checked && !checkboxBlue.checked) {
+        alert("At least one checkbox with a color must be checked!");
+        return;
+    }
+
+    let wasPaused = false;
+    if(videoElement.paused){
+        wasPaused = true;
+    }
+    videoElement.pause();
+
+    const videoCanvas = document.createElement('canvas');
+    const ctx = videoCanvas.getContext('2d');
+    videoCanvas.width = videoElement.videoWidth;
+    videoCanvas.height = videoElement.videoHeight;
+    ctx.drawImage(videoElement, 0, 0, videoCanvas.width, videoCanvas.height);
+    const videoImageData = videoCanvas.toDataURL('image/png');
+
+    // Vytvorenie dočasného odkazu na stiahnutie
+    const link = document.createElement('a');
+    link.href = videoImageData;
     link.download = 'graph.png'; // Názov uloženého súboru
     link.click();
 

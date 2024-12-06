@@ -48,6 +48,8 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         }
 
         graphCtx.clearRect(0, 0, width, height);
+        graphCtx.fillStyle = 'white';
+        graphCtx.fillRect(0, 0, width, height);
         graphCtx.beginPath();
 
         // Vykreslenie mriežky a popisiek
