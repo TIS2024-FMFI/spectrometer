@@ -11,7 +11,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
     }
 
     const lineCanvas = document.createElement('canvas');
-    lineCanvas.width = videoElement.videoWidth;
+    lineCanvas.width = getElementWidth(videoElement);
     lineCanvas.height = stripeWidth;
     const ctx = lineCanvas.getContext('2d', { willReadFrequently: true });
     const graphCanvas = document.getElementById('graphCanvas');
@@ -30,16 +30,16 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         if (videoElement.ended) return;
 
         // Určíme počiatočnú pozíciu pásika
-        const startY = videoElement.videoHeight * stripePosition - stripeWidth / 2;
-        ctx.drawImage(videoElement, 0, startY, videoElement.videoWidth, stripeWidth, 0, 0, videoElement.videoWidth, stripeWidth);
+        const startY = getElementHeight(videoElement) * stripePosition - stripeWidth / 2;
+        ctx.drawImage(videoElement, 0, startY, getElementWidth(videoElement), stripeWidth, 0, 0, getElementWidth(videoElement), stripeWidth);
 
         // Získame pixely pre zadaný pásik (s výškou stripeWidth)
-        let pixels = ctx.getImageData(0, 0, videoElement.videoWidth, stripeWidth).data;
-        let pixelWidth = videoElement.videoWidth;
+        let pixels = ctx.getImageData(0, 0, getElementWidth(videoElement), stripeWidth).data;
+        let pixelWidth = getElementWidth(videoElement);
 
         // Ak je zadaný zoom, tak zobrazíme len časť grafu
         let zoomStart = 0;
-        let zoomEnd = videoElement.videoWidth;
+        let zoomEnd = getElementWidth(videoElement);
 
         if (zoomList.length === 2) {
             [zoomStart, zoomEnd] = zoomList;
@@ -92,7 +92,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         function calculateAverageColor(x, colorOffset) {
             let sum = 0;
             for (let y = 0; y < stripeWidth; y++) {
-                sum += pixels[(y * videoElement.videoWidth + x) * 4 + colorOffset];
+                sum += pixels[(y * getElementWidth(videoElement) + x) * 4 + colorOffset];
             }
             return sum / stripeWidth;
         }
@@ -138,6 +138,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
             drawLine('blue', 2);
         }
 
+        if(videoElement instanceof HTMLImageElement) return;
         animationId = requestAnimationFrame(drawGraphLine);
     }
     drawGraphLine();

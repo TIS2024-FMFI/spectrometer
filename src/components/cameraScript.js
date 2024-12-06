@@ -113,6 +113,69 @@ async function pausePlayVideo(){
     }
 }
 
+function getBackToCameraStream(){
+    videoElement.style.display = 'none'; // Show the video element
+    videoElement = document.getElementById('videoMain');
+    videoElement.style.display = 'block'; // Show the video element
+    document.getElementById("cameraWindowControlsOnMeasureCameraStreaming").style.display = "block";
+    document.getElementById("cameraWindowControlsOnMeasureFromPicture").style.display = "none";
+    resetCamera();
+}
+
+function loadImageIntoCamera() {
+    // Create a file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+
+    // Add an event listener to handle the file selection
+    input.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const stream = videoElement.srcObject;
+                if (stream) {
+                    const tracks = stream.getTracks();
+                    tracks.forEach(track => track.stop());
+                    videoElement.srcObject = null;
+                }
+                videoElement.style.display = 'none'; // Hide the video element
+                document.getElementById("cameraWindowControlsOnMeasureCameraStreaming").style.display = "none";
+                document.getElementById("cameraWindowControlsOnMeasureFromPicture").style.display = "block";
+                videoElement = document.getElementById('cameraImage');
+                videoElement.src = e.target.result;
+                videoElement.style.display = 'block'; // Show the image element
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Trigger the file input click event to open the file dialog
+    input.click();
+}
+
+function getElementWidth(element) {
+    if (element instanceof HTMLVideoElement) {
+        return element.videoWidth;
+    } else if (element instanceof HTMLImageElement) {
+        return element.naturalWidth;
+    } else {
+        console.log('Unsupported element type');
+        throw new Error('Unsupported element type');
+    }
+}
+
+function getElementHeight(element) {
+    if (element instanceof HTMLVideoElement) {
+        return element.videoHeight;
+    } else if (element instanceof HTMLImageElement) {
+        return element.naturalHeight;
+    } else {
+        throw new Error('Unsupported element type');
+    }
+}
+
 // Request access and populate the camera list when the page loads
 requestCameraAccess();
 

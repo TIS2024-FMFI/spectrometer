@@ -13,7 +13,7 @@
     width: 100%;
     height: 480px;
 }
-#videoMain, #videoSelect {
+#videoMain, #videoSelect, #cameraImage{
     position: absolute;
     top: 0;
     left: 0;
