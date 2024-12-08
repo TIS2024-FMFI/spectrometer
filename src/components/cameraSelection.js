@@ -18,18 +18,18 @@ function showSelectedStripe() {
         return;
     }
 
-    if (!videoElement || videoElement.videoWidth <= 0 || videoElement.videoHeight <= 0) {
+    if (!videoElement || getElementWidth(videoElement) <= 0 || getElementHeight(videoElement) <= 0) {
         console.error('Invalid video element or dimensions');
         return;
     }
 
-    const videoWidth = videoElement.videoWidth;
-    const stripePosition = videoElement.videoHeight * getYPercentage() - stripeWidth / 2;
+    const videoWidth = getElementWidth(videoElement);
+    const stripePosition = getElementHeight(videoElement) * getYPercentage() - stripeWidth / 2;
 
     stripeCanvas.width = graphCanvas.width;
 
     stripeCtx.drawImage(videoElement, 0, stripePosition, videoWidth, stripeWidth, 0, 0, stripeCanvas.width, stripeCanvas.height);
-    console.log(stripePosition, videoWidth, stripeWidth);
+    //console.log(stripePosition, videoWidth, stripeWidth);
 }
 
 function updateStripeContinuously() {
