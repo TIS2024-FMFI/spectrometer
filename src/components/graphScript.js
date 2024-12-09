@@ -2,12 +2,15 @@
 let zoomList = [];
 // Sledovanie ID animácie
 let animationId;
+let showPeaks = false;
+let smoothing = 0;
+let minValue = 0;
+let distance = 1;
 
 function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth = 1) {
-    // Zrušenie predchádzajúcej animácie, ak existuje
     if (animationId) {
         cancelAnimationFrame(animationId);
-        animationId = null; // Resetovanie ID
+        animationId = null;
     }
 
     const lineCanvas = document.createElement('canvas');
@@ -19,25 +22,41 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
 
     const width = graphCanvas.width;
     const height = graphCanvas.height;
-    const padding = 30; // Definujeme padding
+    const padding = 30;
+    videoElement.addEventListener('loadedmetadata', function() {
+        document.getElementById('distanceRange').max = videoElement.videoWidth;
+    });
 
-    const toggleCombined = document.getElementById('toggleCombined').checked;
-    const toggleR = document.getElementById('toggleR').checked;
-    const toggleG = document.getElementById('toggleG').checked;
-    const toggleB = document.getElementById('toggleB').checked;
+    document.getElementById('smoothingRange').addEventListener('input', function() {
+        smoothing = parseInt(this.value);
+        document.getElementById('smoothingValue').textContent = smoothing;
+
+    });
+
+    document.getElementById('minValueRange').addEventListener('input', function() {
+        minValue = parseInt(this.value, 10);
+        document.getElementById('minValueValue').textContent = minValue;
+    });
+
+    document.getElementById('distanceRange').addEventListener('input', function() {
+        distance = parseInt(this.value, 10);
+        document.getElementById('distanceValue').textContent = distance;
+    });
 
     function drawGraphLine() {
         if (videoElement.ended) return;
 
-        // Určíme počiatočnú pozíciu pásika
+        const toggleCombined = document.getElementById('toggleCombined').checked;
+        const toggleR = document.getElementById('toggleR').checked;
+        const toggleG = document.getElementById('toggleG').checked;
+        const toggleB = document.getElementById('toggleB').checked;
+
         const startY = getElementHeight(videoElement) * stripePosition - stripeWidth / 2;
         ctx.drawImage(videoElement, 0, startY, getElementWidth(videoElement), stripeWidth, 0, 0, getElementWidth(videoElement), stripeWidth);
 
-        // Získame pixely pre zadaný pásik (s výškou stripeWidth)
         let pixels = ctx.getImageData(0, 0, getElementWidth(videoElement), stripeWidth).data;
         let pixelWidth = getElementWidth(videoElement);
 
-        // Ak je zadaný zoom, tak zobrazíme len časť grafu
         let zoomStart = 0;
         let zoomEnd = getElementWidth(videoElement);
 
@@ -52,20 +71,19 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         graphCtx.fillRect(0, 0, width, height);
         graphCtx.beginPath();
 
-        // Vykreslenie mriežky a popisiek
         graphCtx.strokeStyle = '#e0e0e0';
         graphCtx.lineWidth = 0.5;
         graphCtx.font = '10px Arial';
         graphCtx.fillStyle = 'black';
 
-        const yRange = 255; // Rozsah od 0 do 255
+        const yRange = 255;
         const numOfYLabels = 20;
 
         for (let i = 0; i <= numOfYLabels; i++) {
             const y = padding + ((height - 2 * padding) / numOfYLabels) * i;
             graphCtx.moveTo(padding, y);
             graphCtx.lineTo(width - padding, y);
-            const label = (255 - (i * (255 / numOfYLabels))).toFixed(0); // Popisky od 0 do 255
+            const label = (255 - (i * (255 / numOfYLabels))).toFixed(0);
             let yOffset = 3;
             graphCtx.fillText(label, 5, y + yOffset);
         }
@@ -80,9 +98,9 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
             let label;
             if (!toggleXLabelsPx) {
                 const pixelValue = zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels);
-                label = getWaveLengthByPx(pixelValue).toFixed(0); // Convert pixel to nm
+                label = getWaveLengthByPx(pixelValue).toFixed(0);
             } else {
-                label = (zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels)).toFixed(0); // Pixel value
+                label = (zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels)).toFixed(0);
             }
             graphCtx.fillText(label, x - 10, height - 5);
         }
@@ -97,19 +115,34 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
             return sum / stripeWidth;
         }
 
-        // Funkcia na zistenie maximálnej farby pre kombinovaný graf
         function calculateMaxColor(x) {
             return Math.max(calculateAverageColor(x, 0), calculateAverageColor(x, 1), calculateAverageColor(x, 2));
         }
 
-        // Funkcia na vykreslenie čiar
-        function drawLine(color, colorOffset) {
+        function drawLine(color, colorOffset, smoothing = 1, minValue = 0, distance = 1) {
             graphCtx.beginPath();
-            for (let x = 0; x < pixelWidth; x++) {
-                let value = calculateAverageColor(x, colorOffset);
-                if (colorOffset === -1) {
-                    value = calculateMaxColor(x);
+            const maxima = []; // Store maxima after applying filters
+
+            function smoothedValue(x, colorOffset) {
+                let sum = 0;
+                let count = 0;
+                for (let offset = -smoothing; offset <= smoothing; offset++) {
+                    const smoothedX = x + offset;
+                    if (smoothedX >= 0 && smoothedX < pixelWidth) {
+                        if (colorOffset === -1) {
+                            sum += calculateMaxColor(smoothedX);
+                        } else {
+                            sum += calculateAverageColor(smoothedX, colorOffset);
+                        }
+                        count++;
+                    }
                 }
+                return count > 0 ? sum / count : 0;
+            }
+
+            for (let x = 0; x < pixelWidth; x++) {
+                let value = smoothedValue(x, colorOffset);
+
                 const y = height - padding - (value / yRange) * (height - 2 * padding);
                 const scaledX = padding + (x / pixelWidth) * (width - 2 * padding);
 
@@ -118,29 +151,79 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
                 } else {
                     graphCtx.lineTo(scaledX, y);
                 }
+
+                if (colorOffset === -1 && showPeaks && value >= minValue &&
+                    (x > 0 && x < pixelWidth - 1 &&
+                            value > smoothedValue(x - 1, colorOffset) &&
+                            value > smoothedValue(x + 1, colorOffset)))
+                {
+                    maxima.push({ x, value });
+                }
             }
+
             graphCtx.strokeStyle = color;
             graphCtx.lineWidth = 1;
             graphCtx.stroke();
+
+            if (colorOffset === -1 && showPeaks) {
+                const filteredMaxima = [];
+                for (let segmentStart = 0; segmentStart < pixelWidth; segmentStart += distance) {
+                    const segmentEnd = segmentStart + distance;
+                    let highestMaximum = null;
+
+                    maxima.forEach((max) => {
+                        if (max.x >= segmentStart && max.x < segmentEnd) {
+                            if (!highestMaximum || max.value > highestMaximum.value) {
+                                highestMaximum = max;
+                            }
+                        }
+                    });
+
+                    if (highestMaximum) {
+                        filteredMaxima.push(highestMaximum);
+                    }
+                }
+
+                filteredMaxima.forEach(({ x, value }) => {
+                    const scaledX = padding + (x / pixelWidth) * (width - 2 * padding);
+                    const scaledY = height - padding - (value / 255) * (height - 2 * padding);
+
+                    graphCtx.beginPath();
+                    graphCtx.arc(scaledX, scaledY, 3, 0, 2 * Math.PI, false);
+                    graphCtx.fillStyle = 'magenta'; // Single color for maxima
+                    graphCtx.fill();
+                    graphCtx.strokeStyle = 'magenta';
+                    graphCtx.stroke();
+                });
+            }
         }
 
-        // Vykreslenie čiar pre jednotlivé farby
         if (toggleCombined) {
-            drawLine('black', -1);
+            drawLine('black', -1, smoothing, minValue, distance);
         }
         if (toggleR) {
-            drawLine('red', 0);
+            drawLine('red', 0, smoothing, minValue, distance);
         }
         if (toggleG) {
-            drawLine('green', 1);
+            drawLine('green', 1, smoothing, minValue, distance);
         }
         if (toggleB) {
-            drawLine('blue', 2);
+            drawLine('blue', 2, smoothing, minValue, distance);
         }
 
-        if(videoElement instanceof HTMLImageElement) return;
+        if (videoElement instanceof HTMLImageElement) return;
         animationId = requestAnimationFrame(drawGraphLine);
     }
+    /* disabled for now
+    function togglePeaks(event) {
+        showPeaks = event.target.checked;
+        if (videoElement) {
+            plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
+        }
+    }
+    document.getElementById('togglePeaksCheckbox').addEventListener('change', togglePeaks);
+    */
+
     drawGraphLine();
 }
 
