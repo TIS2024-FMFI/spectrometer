@@ -115,7 +115,7 @@
           <button onclick="getBackToCameraStream()">Resume Camera</button>
           <button onclick="loadImageIntoCamera()">Load Image</button>
         </div>
-        <label data-translate="stripe-width" for="stripeWidthRange">Stripe Width:
+        <label for="stripeWidthRange">Stripe Width:
           <button onclick="decreaseStripeWidth()">-</button>
           <input type="range" id="stripeWidthRange" min="1" max="255" value="1" onchange="updateStripeWidth(this.value)">
           <button onclick="increaseStripeWidth()">+</button>
@@ -163,7 +163,7 @@
 
     <!-- Graph -->
     <div id="checkboxWindow">
-        <label data-translate="checkbox-comb"><input type="checkbox" id="toggleCombined" checked> Combined</label>
+        <label><input type="checkbox" id="toggleCombined" checked> Combined</label>
         <label><input type="checkbox" id="toggleR"> R</label>
         <label><input type="checkbox" id="toggleG"> G</label>
         <label><input type="checkbox" id="toggleB"> B</label>
@@ -172,12 +172,30 @@
       <button id="resetZoomButton">Reset Zoom</button>
       <label for="toggleXLabelsPx">X-axis Labels (px)</label>
       <input type="radio" id="toggleXLabelsPx" name="toggleXLabels" value="px" checked>
-      <label  for="toggleXLabelsNm">X-axis Labels (nm)</label>
+      <label for="toggleXLabelsNm">X-axis Labels (nm)</label>
       <input type="radio" id="toggleXLabelsNm" name="toggleXLabels" value="nm">
       <canvas id="graphCanvas" width="800" height="400"></canvas>
       <script src="../components/graphScript.js"></script>
       <canvas id="stripeCanvas" width="800" height="50"></canvas>
       <script src="../components/cameraSelection.js"></script>
+    </div>
+
+    <div id="peaksSection">
+      <!-- disabled for now-->
+      <!--<label for="togglePeaksCheckbox">Toggle Peaks</label>
+      <input type="checkbox" id="togglePeaksCheckbox">
+      <br>-->
+      <label for="smoothingRange">Smoothing</label>
+      <input type="range" id="smoothingRange" min="0" max="20" step="1" value="0">
+      <span id="smoothingValue">1</span>
+      <br>
+      <label for="minValueRange">Min Value</label>
+      <input type="range" id="minValueRange" min="0" max="255" value="0">
+      <span id="minValueValue">0</span>
+      <br>
+      <label for="distanceRange">Distance</label>
+      <input type="range" id="distanceRange" min="1" max="500" value="1">
+      <span id="distanceValue">1</span>
     </div>
   </div>
 
