@@ -29,7 +29,6 @@ function showSelectedStripe() {
     stripeCanvas.width = graphCanvas.width;
 
     stripeCtx.drawImage(videoElement, 0, stripePosition, videoWidth, stripeWidth, 0, 0, stripeCanvas.width, stripeCanvas.height);
-    //console.log(stripePosition, videoWidth, stripeWidth);
 }
 
 function updateStripeContinuously() {
