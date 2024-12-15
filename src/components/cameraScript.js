@@ -5,6 +5,7 @@
 let videoElement = document.getElementById('videoSelect');
 const cameraSelect = document.getElementById('cameraSelect');
 let cameraUsed = "";
+const exposureSlider = document.getElementById('exposure');
 
 // Start streaming video from the specified device
 async function startStream(deviceId) {
@@ -17,6 +18,22 @@ async function startStream(deviceId) {
         const stream = await navigator.mediaDevices.getUserMedia(constraints);
         videoElement.srcObject = stream;
 
+        const videoTrack = stream.getVideoTracks()[0];
+        const capabilities = videoTrack.getCapabilities();
+
+        //TODO: Need to retest this with spectrometer
+        if ('exposureCompensation' in capabilities) {
+            exposureSlider.min = capabilities.exposureCompensation.min;
+            exposureSlider.max = capabilities.exposureCompensation.max;
+            exposureSlider.step = capabilities.exposureCompensation.step;
+            exposureSlider.value = videoTrack.getSettings().exposureCompensation || 0;
+
+            exposureSlider.addEventListener('input', () => {
+                videoTrack.applyConstraints({
+                    advanced: [{ exposureCompensation: parseFloat(exposureSlider.value) }]
+                });
+            });
+        }
         // Makes sure the graph is drawn into its canvas the moment the stream starts
         videoElement.onloadedmetadata = () => {
             plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
@@ -81,6 +98,7 @@ if (cameraSelect != null) {
 }
 
 // Function to manually change to a camera with the given name (if it exists)
+//TODO: Check if this is needed
 async function changeCamera(cameraName) {
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
