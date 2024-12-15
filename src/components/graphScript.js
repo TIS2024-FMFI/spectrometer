@@ -279,7 +279,7 @@ function addXValueToZoomList(x) {
         return;
     }
     const graphCanvas = document.getElementById('graphCanvas');
-    const index = Math.floor((x - 30) / (graphCanvas.width - 60) * videoElement.videoWidth); // Calculate the index based on the X position
+    const index = Math.floor((x - 30) / (graphCanvas.width - 60) * videoElement.videoWidth);
 
     let insertIndex = zoomList.findIndex(value => value > index);
     if (insertIndex === -1) {
