@@ -22,15 +22,20 @@ async function startStream(deviceId) {
         const capabilities = videoTrack.getCapabilities();
 
         //TODO: Need to retest this with spectrometer
-        if ('exposureCompensation' in capabilities) {
-            exposureSlider.min = capabilities.exposureCompensation.min;
-            exposureSlider.max = capabilities.exposureCompensation.max;
-            exposureSlider.step = capabilities.exposureCompensation.step;
-            exposureSlider.value = videoTrack.getSettings().exposureCompensation || 0;
+        if ('exposureMode' in capabilities) {
+            // Set the exposure mode to manual
+            await videoTrack.applyConstraints({
+                advanced: [{ exposureMode: 'manual' }]
+            });
 
+            if ('exposureTime' in capabilities) {
+                await videoTrack.applyConstraints({
+                    advanced: [{ exposureTime: exposureSlider.value }]
+                });
+            }
             exposureSlider.addEventListener('input', () => {
                 videoTrack.applyConstraints({
-                    advanced: [{ exposureCompensation: parseFloat(exposureSlider.value) }]
+                    advanced: [{ exposureTime: parseFloat(exposureSlider.value) }]
                 });
             });
         }
@@ -95,28 +100,6 @@ if (cameraSelect != null) {
         startStream(cameraSelect.value);
         cameraUsed = cameraSelect.value;
     });
-}
-
-// Function to manually change to a camera with the given name (if it exists)
-//TODO: Check if this is needed
-async function changeCamera(cameraName) {
-    try {
-        const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(device => device.kind === 'videoinput');
-
-        // Find a device that matches the given name and start it
-        if (videoDevices.find(device => device.label === cameraName)) {
-            startStream(targetDevice.deviceId);
-            cameraUsed = targetDevice.deviceId;
-        } else {
-            if (videoDevices.length > 0) {
-                startStream(videoDevices[0].deviceId);
-                cameraUsed = videoDevices[0].deviceId;
-            }
-        }
-    } catch (error) {
-        console.error('Error switching camera:', error);
-    }
 }
 
 async function pausePlayVideo(){
