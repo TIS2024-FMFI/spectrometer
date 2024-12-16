@@ -125,8 +125,6 @@
         <button onclick="saveGraphImage()">Screenshot graph</button>
         <button data-translate="camExp-button" onclick="openCameraExposure()">Camera Exposure</button>
       </div>
-
-      <script src="../components/cameraScript.js"></script>
     </div>
 
     <!-- Camera Exposure Window -->
@@ -177,7 +175,6 @@
       <canvas id="graphCanvas" width="800" height="400"></canvas>
       <script src="../components/graphScript.js"></script>
       <canvas id="stripeCanvas" width="800" height="50"></canvas>
-      <script src="../components/cameraSelection.js"></script>
     </div>
 
     <div id="peaksSection">
@@ -199,7 +196,7 @@
     </div>
     <div id="cameraExposure">
       <label for="exposure">Adjust Exposure:</label>
-        <input id="exposure" type="range" min="2" max="5000" step="0.1" value="2499">
+        <input id="exposure" type="range" min="10" max="3000" step="1" value="1000">
     </div>
   </div>
 
@@ -209,5 +206,7 @@
   <button data-translate="previous-button" id="prevButton" onclick="changeStep(-1)" disabled>Previous</button>
   <button data-translate="next-button" id="nextButton" onclick="changeStep(1)">Next</button>
 </div>
+<script src="../components/cameraScript.js"></script>
+<script src="../components/cameraSelection.js"></script>
 </body>
 </html>
