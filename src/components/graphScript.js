@@ -26,6 +26,28 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
     const toggleG = document.getElementById('toggleG').checked;
     const toggleB = document.getElementById('toggleB').checked;
 
+    function drawCalibrationLine() {
+        graphCtx.beginPath();
+
+        console.log("nm", nmCalPoints);
+        console.log("px", pixelCalPoints);
+
+        for (let i = 0; i < nmCalPoints.length; i++) {
+            const x = padding + ((pixelCalPoints[i] - pixelCalPoints[0]) / (pixelCalPoints[pixelCalPoints.length - 1] - pixelCalPoints[0])) * (width - 2 * padding);
+            const y = height - padding - (nmCalPoints[i] / 255) * (height - 2 * padding);
+
+            if (i === 0) {
+                graphCtx.moveTo(x, y);
+            } else {
+                graphCtx.lineTo(x, y);
+            }
+        }
+
+        graphCtx.strokeStyle = 'blue';
+        graphCtx.lineWidth = 1.5;
+        graphCtx.stroke();
+    }
+
     function drawGraphLine() {
         if (videoElement.ended) return;
 
@@ -86,6 +108,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         }
 
         graphCtx.stroke();
+        drawCalibrationLine();
 
         function calculateAverageColor(x, colorOffset) {
             let sum = 0;
@@ -139,6 +162,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         animationId = requestAnimationFrame(drawGraphLine);
     }
     drawGraphLine();
+    drawCalibrationLine();
 }
 
 // Funkcia na pridanie hodnoty X do zoznamu zoomu
