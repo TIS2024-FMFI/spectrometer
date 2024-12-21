@@ -97,34 +97,37 @@
       </ul>
     </nav>
 
+    <!-- Camera -->
     <div id="cameraMainWindow">
       <div id="videoMainWindow">
         <video id="videoMain" autoplay playsinline></video>
+        < img id="cameraImage" style="display: none">
         <!--TODO Refresh for safari-->
         <canvas data-translate="canvas-warning" id="cameraWindowCanvasRecording" >Your browser does not support the HTML canvas tag.</canvas>
       </div>
       <div id="cameraWindowControlsOnMeasure">
-        <button data-translate="refresh-button" onclick="resetCamera()">Refresh</button>
-        <button data-translate="pause-button" onclick="pausePlayVideo()" id="pausePlayVideoButton">Pause</button>
-        <label data-translate="stripe-width" for="stripeWidthRange">Stripe Width:</label>
-        <button onclick="decreaseStripeWidth()">-</button>
-        <input type="range" id="stripeWidthRange" min="1" max="255" value="1" onchange="updateStripeWidth(this.value)">
-        <button onclick="increaseStripeWidth()">+</button>
-        <span id="stripeWidthValue">1</span> px
-        <div id="graphSaver">
-          <button data-translate="saveGraph-button" onclick="openGraphSaver()">Save Graph</button>
-          <div id="graphSaverOption" style="display: none">
-            <button data-translate="close-button" onclick="closeGraphSaver()">close</button>
-            <button data-translate="saveText-button" onclick="saveGraphTXT()">as text</button>
-            <button data-translate="saveImage-button" onclick="saveGraphImage()">as image</button>
-          </div>
+        <div id="cameraWindowControlsOnMeasureCameraStreaming">
+          <button data-translate="refresh-button" onclick="resetCamera()">Refresh</button>
+          <button data-translate="pause-button" onclick="pausePlayVideo()" id="pausePlayVideoButton">Pause</button>
+          <button onclick="loadImageIntoCamera()">Load Image</button>
         </div>
+        <div id="cameraWindowControlsOnMeasureFromPicture" style="display: none">
+          <button onclick="getBackToCameraStream()">Resume Camera</button>
+          <button onclick="loadImageIntoCamera()">Load Image</button>
+        </div>
+        <label for="stripeWidthRange">Stripe Width:
+          <button onclick="decreaseStripeWidth()">-</button>
+          <input type="range" id="stripeWidthRange" min="1" max="255" value="1" onchange="updateStripeWidth(this.value)">
+          <button onclick="increaseStripeWidth()">+</button>
+          <span id="stripeWidthValue">1</span> px
+        </label>
+        <button onclick="saveCameraImage()">Screenshot camera</button>
+        <button onclick="saveGraphImage()">Screenshot graph</button>
         <button data-translate="camExp-button" onclick="openCameraExposure()">Camera Exposure</button>
       </div>
-
-      <script src="../components/cameraScript.js"></script>
     </div>
 
+    <!-- Camera Exposure Window -->
     <div id="cameraExposureWindow" style="display: none">
       <button data-translate="close-button" onclick="closeCameraExposure()">close</button>
       <br>
@@ -137,15 +140,28 @@
       <label for="timeOfPause">
         <span data-translate="pauseBetCap">Pause in between captures </span>
         <!--TODO max time of pause-->
-        <input type="number" id="timeOfPause" name="timeOfPause" min="1" value="100">
+        <input type="number" id="timeOfPause" name="timeOfPause" min="200" value="300">
         <span>(in ms.)</span>
       </label>
       <br>
+      <label for="screenshotOfGraph">
+        <span>screenshot graph</span>
+        <input type="checkbox" id="screenshotOfGraph" name="screenshotOfGraph">
+      </label>
       <button data-translate="capture-button" onclick="startCameraCapture()">Capture</button>
     </div>
 
+    <!-- While camera/graph is being recorder-->
+    <div id="cameraRecordingIsOn" style="display: none">
+      <div id="cameraRecordingIsOnWindows">
+        <span>Recording...</span>
+        <button onclick="stopOngoingRecording()">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Graph -->
     <div id="checkboxWindow">
-        <label data-translate="checkbox-comb"><input type="checkbox" id="toggleCombined" checked> Combined</label>
+        <label><input type="checkbox" id="toggleCombined" checked> Combined</label>
         <label><input type="checkbox" id="toggleR"> R</label>
         <label><input type="checkbox" id="toggleG"> G</label>
         <label><input type="checkbox" id="toggleB"> B</label>
@@ -154,12 +170,33 @@
       <button id="resetZoomButton">Reset Zoom</button>
       <label for="toggleXLabelsPx">X-axis Labels (px)</label>
       <input type="radio" id="toggleXLabelsPx" name="toggleXLabels" value="px" checked>
-      <label  for="toggleXLabelsNm">X-axis Labels (nm)</label>
+      <label for="toggleXLabelsNm">X-axis Labels (nm)</label>
       <input type="radio" id="toggleXLabelsNm" name="toggleXLabels" value="nm">
       <canvas id="graphCanvas" width="800" height="400"></canvas>
       <script src="../components/graphScript.js"></script>
       <canvas id="stripeCanvas" width="800" height="50"></canvas>
-      <script src="../components/cameraSelection.js"></script>
+    </div>
+
+    <div id="peaksSection">
+      <!-- disabled for now-->
+      <!--<label for="togglePeaksCheckbox">Toggle Peaks</label>
+      <input type="checkbox" id="togglePeaksCheckbox">
+      <br>-->
+      <label for="smoothingRange">Smoothing</label>
+      <input type="range" id="smoothingRange" min="0" max="20" step="1" value="0">
+      <span id="smoothingValue">1</span>
+      <br>
+      <label for="minValueRange">Min Value</label>
+      <input type="range" id="minValueRange" min="0" max="255" value="0">
+      <span id="minValueValue">0</span>
+      <br>
+      <label for="distanceRange">Distance</label>
+      <input type="range" id="distanceRange" min="1" max="500" value="1">
+      <span id="distanceValue">1</span>
+    </div>
+    <div id="cameraExposure">
+      <label for="exposure">Adjust Exposure:</label>
+        <input id="exposure" type="range" min="10" max="3000" step="1" value="1000">
     </div>
   </div>
 
@@ -169,5 +206,7 @@
   <button data-translate="previous-button" id="prevButton" onclick="changeStep(-1)" disabled>Previous</button>
   <button data-translate="next-button" id="nextButton" onclick="changeStep(1)">Next</button>
 </div>
+<script src="../components/cameraScript.js"></script>
+<script src="../components/cameraSelection.js"></script>
 </body>
 </html>
