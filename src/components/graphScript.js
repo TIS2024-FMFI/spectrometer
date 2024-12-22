@@ -5,6 +5,16 @@ let showPeaks = false;
 let smoothing = 0;
 let minValue = 0;
 let distance = 1;
+let referenceColors = ['#ff7602' ,'#ffdd00' ,'#00ffd3' ,'#8f5bf8',
+                                '#d64d4d', '#a6794b', '#77ba7b', '#f800ff',
+                                '#f89a8e', '#cabb6e', '#237c24', '#3109a5',
+                                '#ff6767', '#545a03', '#4cb15f', '#6a0345',
+                                '#a51104', '#ffbb28', '#1a371a', '#470925',
+                                '#9f9f00', '#a8ac6b', '#956f83', '#a53be4']
+let referenceGraph = [];
+let captureReferenceGraph = false;
+let showReferenceGraph = false;
+
 
 function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth = 1) {
     if (animationId) {
@@ -52,6 +62,13 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
     clearGraph(graphCtx, graphCanvas);
     drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd);
 
+    if (showReferenceGraph) {
+        for (let i = 0; i < referenceGraph.length; i++) {
+            const [tempPixels, tempPixelWidth, tempSmoothing, tempMinValue, tempDistance] = referenceGraph[i];
+            drawLine(graphCtx, tempPixels, tempPixelWidth, referenceColors[i%referenceColors.length], -1, tempSmoothing, tempMinValue, tempDistance);
+        }
+    }
+
     if (toggleCombined) {
         drawLine(graphCtx, pixels, pixelWidth, 'black', -1, smoothing, minValue, distance);
     }
@@ -63,6 +80,11 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
     }
     if (toggleB) {
         drawLine(graphCtx, pixels, pixelWidth, 'blue', 2, smoothing, minValue, distance);
+    }
+
+    if (captureReferenceGraph) {
+        referenceGraph.push([pixels, pixelWidth, smoothing, minValue, distance]);
+        captureReferenceGraph = false;
     }
 }
 
@@ -290,6 +312,16 @@ function addXValueToZoomList(x) {
     console.log(zoomList);
 }
 
+function addReferenceLine() {
+    captureReferenceGraph = true;
+    plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
+}
+
+function removeReferenceLinesAndAddNewReferenceLine() {
+    referenceGraph = [];
+    addReferenceLine();
+}
+
 // Event listener pre kliknutie na canvas
 const graphCanvas = document.getElementById('graphCanvas');
 graphCanvas.addEventListener('click', (event) => {
@@ -302,6 +334,19 @@ graphCanvas.addEventListener('click', (event) => {
 document.getElementById('resetZoomButton').addEventListener('click', () => {
     zoomList = [];
     console.log('Zoom list reset:', zoomList);
+});
+
+// Event listener for turning on/off references in graph
+const referenceGraphCheckbox = document.getElementById('referenceGraphCheckbox');
+referenceGraphCheckbox.addEventListener('change', () => {
+    if (referenceGraphCheckbox.checked) {
+        document.getElementById("referenceGraphControl").style.display = "block";
+        showReferenceGraph = true;
+    }
+    else {
+        document.getElementById("referenceGraphControl").style.display = "none";
+        showReferenceGraph = false;
+    }
 });
 
 // Event listener pre zmenu šírky pásika

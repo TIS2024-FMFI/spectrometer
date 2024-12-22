@@ -14,12 +14,12 @@ function showSelectedStripe() {
 
     const stripeWidth = getStripeWidth();
     if (typeof stripeWidth !== 'number' || stripeWidth <= 0) {
-        console.error('Invalid stripe width');
+        // console.error('Invalid stripe width');
         return;
     }
 
     if (!videoElement || getElementWidth(videoElement) <= 0 || getElementHeight(videoElement) <= 0) {
-        console.error('Invalid video element or dimensions');
+        // console.error('Invalid video element or dimensions');
         return;
     }
 
