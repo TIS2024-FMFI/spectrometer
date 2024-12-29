@@ -31,7 +31,10 @@
       <video id="videoSelect" autoplay playsinline></video>
     </div>
     <div id="cameraWindowControlsOnSetUp">
-      <select id="cameraSelect"></select>
+      <label>
+        <span>Choose camera: </span>
+        <select id="cameraSelect"></select>
+      </label>
       <button data-translate="refresh-button" onclick="getCameras()">Refresh</button>
     </div>
   </div>
@@ -101,7 +104,7 @@
     <div id="cameraMainWindow">
       <div id="videoMainWindow">
         <video id="videoMain" autoplay playsinline></video>
-        < img id="cameraImage" style="display: none">
+        <img id="cameraImage" style="display: none">
         <!--TODO Refresh for safari-->
         <canvas data-translate="canvas-warning" id="cameraWindowCanvasRecording" >Your browser does not support the HTML canvas tag.</canvas>
       </div>
@@ -125,6 +128,16 @@
         <button onclick="saveGraphImage()">Screenshot graph</button>
         <button data-translate="camExp-button" onclick="openCameraExposure()">Camera Exposure</button>
       </div>
+      <div id="referenceGraph">
+        <label>
+          <span>Reference graph:</span>
+          <input type="checkbox" id="referenceGraphCheckbox">
+        </label>
+        <div id="referenceGraphControl" style="display: none">
+          <button onclick="addReferenceLine()">add reference</button>
+          <button onclick="removeReferenceLinesAndAddNewReferenceLine()">Reset references</button>
+        </div>
+      </div>
     </div>
 
     <!-- Camera Exposure Window -->
@@ -133,13 +146,11 @@
       <br>
       <label for="NumOfSamples">
         <span data-translate="numOfCap">Number of Captures</span>
-        <!--TODO max number fo captures-->
         <input type="number" id="NumOfSamples" name="NumOfSamples" min="1" value="5">
       </label>
       <br>
       <label for="timeOfPause">
         <span data-translate="pauseBetCap">Pause in between captures </span>
-        <!--TODO max time of pause-->
         <input type="number" id="timeOfPause" name="timeOfPause" min="200" value="300">
         <span>(in ms.)</span>
       </label>
