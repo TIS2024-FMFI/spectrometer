@@ -238,11 +238,3 @@ function resetCalibrationPoints() {
     resetInputBoxes();
     inputBoxCounter = 3;
 }
-
-/**
- * Checks if calibrations were filled
- * @returns {boolean}
- */
-function canChangeStep() {
-    return Array.isArray(calibrationData) && calibrationData.length >= 3;
-}
