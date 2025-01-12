@@ -11,7 +11,9 @@ const exposureSlider = document.getElementById('exposure');
 async function startStream(deviceId) {
     const constraints = {
         video: {
-            deviceId: deviceId ? { exact: deviceId } : undefined
+            deviceId: deviceId ? { exact: deviceId } : undefined,
+            width: { ideal: 1280 },
+            height: { ideal: 720 }
         }
     };
     try {
@@ -427,7 +429,7 @@ function updateStripeWidth(value) {
     }
     drawSelectionLine();
     if (videoElement) {
-        plotRGBLineFromCamera(videoElement, getYPercentage(), stripeWidth);
+        plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
     }
 }
 
