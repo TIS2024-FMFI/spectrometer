@@ -1,5 +1,9 @@
 // Slúži na priblíženie grafu na základe kliknutia na canvas
 let zoomList = [];
+let cursorCoordinates = { x: 'N/A', y: 'N/A' };
+let isDragging = false;
+let dragStartX = 0;
+let dragEndX = 0;
 let animationId;
 let showPeaks = false;
 let smoothing = 0;
@@ -52,9 +56,14 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
         pixels = averagePixels(pixels, pixelWidth, stripeWidth);
     }
 
+    if (captureReferenceGraph) {
+        referenceGraph.push([pixels, pixelWidth, smoothing, minValue, distance]);
+        captureReferenceGraph = false;
+    }
+
     let [zoomStart, zoomEnd] = getZoomRange(pixelWidth);
 
-    if (zoomList.length === 2) {
+    if (zoomList.length === 2 && (zoomEnd - zoomStart) >= 2) {
         pixels = pixels.slice(zoomStart * 4, zoomEnd * 4);
         pixelWidth = zoomEnd - zoomStart;
     }
@@ -65,8 +74,12 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
 
     if (showReferenceGraph) {
         for (let i = 0; i < referenceGraph.length; i++) {
-            const [tempPixels, tempPixelWidth, tempSmoothing, tempMinValue, tempDistance] = referenceGraph[i];
-            drawLine(graphCtx, tempPixels, tempPixelWidth, referenceColors[i%referenceColors.length], -1, tempSmoothing, tempMinValue, tempDistance);
+            let [tempPixels, tempPixelWidth, tempSmoothing, tempMinValue, tempDistance] = referenceGraph[i];
+            if (zoomList.length === 2) {
+                tempPixels = tempPixels.slice(zoomStart * 4, zoomEnd * 4);
+                tempPixelWidth = zoomEnd - zoomStart;
+            }
+            drawLine(graphCtx, tempPixels, tempPixelWidth, referenceColors[i % referenceColors.length], -1, tempSmoothing, tempMinValue, tempDistance);
         }
     }
 
@@ -83,10 +96,36 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
         drawLine(graphCtx, pixels, pixelWidth, 'blue', 2, smoothing, minValue, distance);
     }
 
-    if (captureReferenceGraph) {
-        referenceGraph.push([pixels, pixelWidth, smoothing, minValue, distance]);
-        captureReferenceGraph = false;
+    if (isDragging) {
+        const rectX = Math.min(dragStartX, dragEndX);
+        const rectWidth = Math.abs(dragStartX - dragEndX);
+        graphCtx.fillStyle = 'rgba(0, 0, 255, 0.2)';
+        graphCtx.fillRect(rectX, 30, rectWidth, graphCanvas.height - 60);
     }
+
+    drawCursorCoordinates(graphCtx, graphCanvas, cursorCoordinates, videoElement);
+}
+
+function drawCursorCoordinates(graphCtx, graphCanvas, cursorCoordinates, videoElement) {
+    // Check if coordinates are out of bounds
+    let displayX = cursorCoordinates.x;
+    let displayY = cursorCoordinates.y;
+    if (displayX < 0 || displayX > videoElement.videoWidth || displayY < 0 || displayY > 255) {
+        displayX = 'N/A';
+        displayY = 'N/A';
+    }
+
+    // Draw the cursor coordinates
+    const text = `X: ${displayX}, Y: ${displayY}`;
+    const textWidth = graphCtx.measureText(text).width;
+    const textX = graphCanvas.width - 150 + (150 - textWidth) / 2;
+
+    graphCtx.clearRect(graphCanvas.width - 150, 0, 150, 30);
+    graphCtx.fillStyle = 'white';
+    graphCtx.fillRect(graphCanvas.width - 150, 0, 150, 30);
+    graphCtx.fillStyle = 'black';
+    graphCtx.font = '16px Arial';
+    graphCtx.fillText(text, textX, 20);
 }
 
 function averagePixels(pixels, pixelWidth, stripeWidth) {
@@ -204,6 +243,7 @@ function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd) {
 
     const toggleXLabelsPx = document.getElementById('toggleXLabelsPx').checked;
     const numOfXLabels = 20;
+    const isZoomedIn = zoomList.length === 2;
 
     for (let i = 0; i <= numOfXLabels; i++) {
         const x = padding + ((width - 2 * padding) / numOfXLabels) * i;
@@ -212,9 +252,9 @@ function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd) {
         let label;
         if (!toggleXLabelsPx) {
             const pixelValue = zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels);
-            label = getWaveLengthByPx(pixelValue).toFixed(0);
+            label = getWaveLengthByPx(pixelValue).toFixed(isZoomedIn ? 2 : 0);
         } else {
-            label = (zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels)).toFixed(0);
+            label = (zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels)).toFixed(isZoomedIn ? 2 : 0);
         }
         graphCtx.fillText(label, x - 10, height - 5);
     }
@@ -283,7 +323,7 @@ function calculateYPosition(value, canvasHeight) {
 
 function calculateXPosition(x, pixelWidth, canvasWidth) {
     const padding = 30;
-    return padding + (x / pixelWidth) * (canvasWidth - 2 * padding);
+    return padding + (x / (pixelWidth - 1)) * (canvasWidth - 2 * padding);
 }
 
 function drawMaxima(graphCtx, maxima, pixelWidth, canvasWidth, canvasHeight, minValue, distance) {
@@ -319,20 +359,22 @@ function drawMaxima(graphCtx, maxima, pixelWidth, canvasWidth, canvasHeight, min
     });
 }
 
-function addXValueToZoomList(x) {
-    if (zoomList.length === 2) {
+function addZoomRange(startX, endX) {
+    const graphCanvas = document.getElementById('graphCanvas');
+    const startIndex = Math.floor((startX - 30) / (graphCanvas.width - 60) * videoElement.videoWidth);
+    const endIndex = Math.floor((endX - 30) / (graphCanvas.width - 60) * videoElement.videoWidth);
+
+    if (Math.abs(startIndex - endIndex) < 2) {
+        console.log('Zoom range too small, zoom not applied.');
         return;
     }
-    const graphCanvas = document.getElementById('graphCanvas');
-    const index = Math.floor((x - 30) / (graphCanvas.width - 60) * videoElement.videoWidth);
 
-    let insertIndex = zoomList.findIndex(value => value > index);
-    if (insertIndex === -1) {
-        zoomList.push(index);
+    if (startIndex > endIndex) {
+        zoomList = [endIndex, startIndex];
     } else {
-        zoomList.splice(insertIndex, 0, index);
+        zoomList = [startIndex, endIndex];
     }
-    console.log(zoomList);
+    console.log('Zoom range:', zoomList);
 }
 
 function addReferenceLine() {
@@ -347,10 +389,33 @@ function removeReferenceLinesAndAddNewReferenceLine() {
 
 // Event listener pre kliknutie na canvas
 const graphCanvas = document.getElementById('graphCanvas');
-graphCanvas.addEventListener('click', (event) => {
+
+graphCanvas.addEventListener('mousedown', (event) => {
+    isDragging = true;
+    const rect = graphCanvas.getBoundingClientRect();
+    dragStartX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
+    dragEndX = dragStartX; // Initialize dragEndX to dragStartX
+});
+
+graphCanvas.addEventListener('mousemove', (event) => {
     const rect = graphCanvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
-    addXValueToZoomList(x);
+    const y = event.clientY - rect.top;
+
+    // Calculate the graph-specific x and y values
+    cursorCoordinates.x = Math.round((x - 30) / (graphCanvas.width - 60) * videoElement.videoWidth);
+    cursorCoordinates.y = Math.round(255 - ((y - 30) / (graphCanvas.height - 60) * 255));
+
+    if (isDragging) {
+        dragEndX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
+    }
+});
+
+graphCanvas.addEventListener('mouseup', () => {
+    if (isDragging) {
+        isDragging = false;
+        addZoomRange(dragStartX, dragEndX);
+    }
 });
 
 // Event listener pre resetovanie zoomu
