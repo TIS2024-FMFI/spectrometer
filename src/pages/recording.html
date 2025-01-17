@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns="http://www.w3.org/1999/html">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -32,7 +32,7 @@
     </div>
     <div id="cameraWindowControlsOnSetUp">
       <label>
-        <span>Choose camera: </span>
+        <span data-translate="choose-camera">Choose camera:</span>
         <select id="cameraSelect"></select>
       </label>
       <button data-translate="refresh-button" onclick="getCameras()">Refresh</button>
@@ -111,31 +111,35 @@
       <div id="cameraWindowControlsOnMeasure">
         <div id="cameraWindowControlsOnMeasureCameraStreaming">
           <button data-translate="refresh-button" onclick="resetCamera()">Refresh</button>
-          <button data-translate="pause-button" onclick="pausePlayVideo()" id="pausePlayVideoButton">Pause</button>
-          <button onclick="loadImageIntoCamera()">Load Image</button>
+          <!-- TODO -->
+          <!--<button data-translate="pause-button" onclick="pausePlayVideo()" id="pausePlayVideoButton">Pause</button>-->
+          <button data-translate="pause-button" onclick="pauseVideo()" id="pauseVideoButton">Pause</button>
+          <button data-translate="play-button" onclick="playVideo()" id="playVideoButton" style="display: none">Play</button>
+          <button data-translate="load_image" onclick="loadImageIntoCamera()">Load Image</button>
         </div>
         <div id="cameraWindowControlsOnMeasureFromPicture" style="display: none">
-          <button onclick="getBackToCameraStream()">Resume Camera</button>
-          <button onclick="loadImageIntoCamera()">Load Image</button>
+          <button data-translate="resume-camera" onclick="getBackToCameraStream()">Resume Camera</button>
+          <button data-translate="load_image" onclick="loadImageIntoCamera()">Load Image</button>
         </div>
-        <label for="stripeWidthRange">Stripe Width:
+        <label for="stripeWidthRange">
+          <span data-translate="stripe-width">Stripe Width:</span>
           <button onclick="decreaseStripeWidth()">-</button>
           <input type="range" id="stripeWidthRange" min="1" max="255" value="1" onchange="updateStripeWidth(this.value)">
           <button onclick="increaseStripeWidth()">+</button>
           <span id="stripeWidthValue">1</span> px
         </label>
-        <button onclick="saveCameraImage()">Screenshot camera</button>
-        <button onclick="saveGraphImage()">Screenshot graph</button>
-        <button data-translate="camExp-button" onclick="openCameraExposure()">Camera Exposure</button>
+        <button id="screenshotCameraButton" data-translate="screenshot-camera" onclick="saveCameraImage()">Screenshot camera</button>
+        <button data-translate="screenshot-graph" onclick="saveGraphImage()">Screenshot graph</button>
+        <button id="cameraExposureButton" data-translate="camExp-button" onclick="openCameraExposure()">Camera Exposure</button>
       </div>
       <div id="referenceGraph">
         <label>
-          <span>Reference graph:</span>
+          <span data-translate="reference-graph">Reference graph:</span>
           <input type="checkbox" id="referenceGraphCheckbox">
         </label>
         <div id="referenceGraphControl" style="display: none">
-          <button onclick="addReferenceLine()">add reference</button>
-          <button onclick="removeReferenceLinesAndAddNewReferenceLine()">Reset references</button>
+          <button data-translate="add-reference" onclick="addReferenceLine()">Add reference</button>
+          <button data-translate="reset-references" onclick="removeReferenceLinesAndAddNewReferenceLine()">Reset references</button>
         </div>
       </div>
     </div>
@@ -156,7 +160,7 @@
       </label>
       <br>
       <label for="screenshotOfGraph">
-        <span>screenshot graph</span>
+        <span data-translate="screenshot-graph">screenshot graph</span>
         <input type="checkbox" id="screenshotOfGraph" name="screenshotOfGraph">
       </label>
       <button data-translate="capture-button" onclick="startCameraCapture()">Capture</button>
@@ -165,23 +169,23 @@
     <!-- While camera/graph is being recorder-->
     <div id="cameraRecordingIsOn" style="display: none">
       <div id="cameraRecordingIsOnWindows">
-        <span>Recording...</span>
-        <button onclick="stopOngoingRecording()">Cancel</button>
+        <span data-translate="recording-screenshots">Recording screenshots...</span>
+        <button data-translate="cancel" onclick="stopOngoingRecording()">Cancel</button>
       </div>
     </div>
 
     <!-- Graph -->
     <div id="checkboxWindow">
-        <label><input type="checkbox" id="toggleCombined" checked> Combined</label>
+        <label><input type="checkbox" id="toggleCombined" checked> <span data-translate="combined">Combined</span></label>
         <label><input type="checkbox" id="toggleR"> R</label>
         <label><input type="checkbox" id="toggleG"> G</label>
         <label><input type="checkbox" id="toggleB"> B</label>
     </div>
     <div id="graphWindow">
-      <button id="resetZoomButton">Reset Zoom</button>
-      <label for="toggleXLabelsPx">X-axis Labels (px)</label>
+      <button data-translate="reset-zoom" id="resetZoomButton">Reset Zoom</button>
+      <label for="toggleXLabelsPx"> <span data-translate="X-px">X-axis Labels (px)</span></label>
       <input type="radio" id="toggleXLabelsPx" name="toggleXLabels" value="px" checked>
-      <label for="toggleXLabelsNm">X-axis Labels (nm)</label>
+      <label for="toggleXLabelsNm"><span data-translate="X-nm">X-axis Labels (nm)</span></label>
       <input type="radio" id="toggleXLabelsNm" name="toggleXLabels" value="nm">
       <canvas id="graphCanvas" width="800" height="400"></canvas>
       <script src="../components/graphScript.js"></script>
@@ -193,20 +197,20 @@
       <!--<label for="togglePeaksCheckbox">Toggle Peaks</label>
       <input type="checkbox" id="togglePeaksCheckbox">
       <br>-->
-      <label for="smoothingRange">Smoothing</label>
+      <label data-translate="smoothing" for="smoothingRange">Smoothing</label>
       <input type="range" id="smoothingRange" min="0" max="20" step="1" value="0">
       <span id="smoothingValue">1</span>
       <br>
-      <label for="minValueRange">Min Value</label>
+      <label data-translate="min-val" for="minValueRange">Min Value</label>
       <input type="range" id="minValueRange" min="0" max="255" value="0">
       <span id="minValueValue">0</span>
       <br>
-      <label for="distanceRange">Distance</label>
+      <label data-translate="distance" for="distanceRange">Distance</label>
       <input type="range" id="distanceRange" min="1" max="500" value="1">
       <span id="distanceValue">1</span>
     </div>
     <div id="cameraExposure">
-      <label for="exposure">Adjust Exposure:</label>
+      <label data-translate="adjust-exposure" for="exposure">Adjust Exposure:</label>
         <input id="exposure" type="range" min="10" max="3000" step="1" value="1000">
     </div>
   </div>

@@ -5,7 +5,8 @@
   "select-language": "Select Language",
   "language-button": "Apply",
 
-  "step1-title": "Step 1: Camera Selection & Stripe",
+  "step1-title": "Step 1: Camera Selection",
+  "choose-camera": "Choose Camera",
   "refresh-button": "Refresh",
 
   "step2-title": "Step 2: Camera calibration",
@@ -30,5 +31,23 @@
   "numOfCap": "Number of Captures",
   "pauseBetCap": "Pause in between captures",
   "capture-button": "Capture",
-  "checkbox-comb": "Combined"
+  "checkbox-comb": "Combined",
+  "load_image": "Load Image",
+  "resume-camera": "Resume Camera",
+  "screenshot-camera": "Screenshot Camera",
+  "screenshot-graph": "Screenshot Graph",
+  "reference-graph": "Reference Graph",
+  "add-reference": "Add Reference",
+  "reset-references": "Reset References",
+  "recording-screenshots": "Recording Screenshots",
+  "cancel": "Cancel",
+  "reset-zoom": "Reset Zoom",
+  "combined": "Combined",
+  "X-px": "X-axis Labels (px)",
+  "X-nm": "X-axis Labels (nm)",
+  "smoothing": "Smoothing",
+  "min-val": "Minimum Value",
+  "distance": "Distance",
+  "adjust-exposure": "Adjust Exposure",
+  "play-button": "Play"
 }

@@ -5,7 +5,8 @@
   "select-language": "Seleccionar idioma",
   "language-button": "Aplicar",
 
-  "step1-title": "Paso 1: Selección de cámara y franja",
+  "step1-title": "Paso 1: Selección de cámara",
+  "choose-camera": "Elegir cámara",
   "refresh-button": "Actualizar",
 
   "step2-title": "Paso 2: Calibración de la cámara",
@@ -30,5 +31,23 @@
   "numOfCap": "Número de capturas",
   "pauseBetCap": "Pausa entre capturas",
   "capture-button": "Capturar",
-  "checkbox-comb": "Combinado"
+  "checkbox-comb": "Combinado",
+  "load_image": "Cargar imagen",
+  "resume-camera": "Reanudar cámara",
+  "screenshot-camera": "Screenshot cámara",
+  "screenshot-graph": "Screenshot gráfico",
+  "reference-graph": "Gráfico de referencia",
+  "add-reference": "Añadir referencia",
+  "reset-references": "Restablecer referencias",
+  "recording-screenshots": "Capturas de pantalla de grabación",
+  "cancel": "Cancelar",
+  "reset-zoom": "Restablecer zoom",
+  "combined": "Combinado",
+  "X-px": "Etiquetas del eje X (px)",
+  "X-nm": "Etiquetas del eje X (nm)",
+  "smoothing": "Suavizado",
+  "min-val": "Valor mínimo",
+  "distance": "Distancia",
+  "adjust-exposure": "Ajustar exposición",
+  "play-button": "Reproducir"
 }

@@ -5,7 +5,8 @@
   "select-language": "Vyberte jazyk",
   "language-button": "Použiť",
 
-  "step1-title": "Krok 1: Výber kamery a pruh",
+  "step1-title": "Krok 1: Výber kamery",
+  "choose-camera": "Vyberte kameru",
   "refresh-button": "Obnoviť",
 
   "step2-title": "Krok 2: Kalibrácia kamery",
@@ -30,5 +31,23 @@
   "numOfCap": "Počet snímok",
   "pauseBetCap": "Pauza medzi snímkami",
   "capture-button": "Zachytiť",
-  "checkbox-comb": "Kombinované"
+  "checkbox-comb": "Kombinované",
+  "load_image": "Načítať obrázok",
+  "resume-camera": "Obnoviť kameru",
+  "screenshot-camera": "Screenshot kamery",
+  "screenshot-graph": "Screenshot grafu",
+  "reference-graph": "Referenčný graf",
+  "add-reference": "Pridať referenciu",
+  "reset-references": "Resetovať referencie",
+  "recording-screenshots": "Nahrávanie snímok",
+  "cancel": "Zrušiť",
+  "reset-zoom": "Resetovať priblíženie",
+  "combined": "Kombinované",
+  "X-px": "Označenia osi X (px)",
+  "X-nm": "Označenia osi X (nm)",
+  "smoothing": "Vyhladenie",
+  "min-val": "Minimálna hodnota",
+  "distance": "Vzdialenosť",
+  "adjust-exposure": "Nastaviť expozíciu",
+  "play-button": "Prehrať"
 }
