@@ -9,6 +9,9 @@ let pixelCalPoints = [];
 let nmCalPoints = [];
 let nMAxis = []
 
+let graphCanvasCalibration;
+let graphCtxCalibration;
+
 /**
  *Adds a pair of input boxes
  */
@@ -104,6 +107,9 @@ function setCalibrationPoints() {
         }
     }
     calibrate();
+    clearGraph(graphCtxCalibration, graphCanvasCalibration);
+    drawGridCalibration();
+    drawCalibrationLine();
 }
 
 /**
@@ -237,4 +243,72 @@ function resetCalibrationPoints() {
     deleteAllAdditionalInputPairs();
     resetInputBoxes();
     inputBoxCounter = 3;
+}
+
+/**
+ * Draws the grid of the graph
+ */
+function drawGridCalibration() {
+    graphCanvasCalibration = document.getElementById('graphCalibration');
+    graphCtxCalibration = graphCanvasCalibration.getContext('2d');
+    clearGraph(graphCtxCalibration, graphCanvasCalibration);
+    const width = graphCanvasCalibration.width;
+    const height = graphCanvasCalibration.height;
+    const padding = 30;
+
+    const yRange = 1280;
+    const numOfYLabels = 25;
+
+    graphCtxCalibration.beginPath();
+    graphCtxCalibration.strokeStyle = '#e0e0e0';
+    graphCtxCalibration.lineWidth = 0.5;
+    graphCtxCalibration.font = '10px Arial';
+    graphCtxCalibration.fillStyle = 'black';
+
+    for (let i = 0; i <= numOfYLabels; i++) {
+        const y = padding + ((height - 2 * padding) / numOfYLabels) * i;
+        graphCtxCalibration.moveTo(padding, y);
+        graphCtxCalibration.lineTo(width - padding, y);
+        const label = (yRange - (i * (yRange / numOfYLabels))).toFixed(0);
+        graphCtxCalibration.fillText(label, 5, y + 3);
+    }
+
+    const numOfXLabels = 20;
+    const xRange = 640;
+
+    for (let i = 0; i <= numOfXLabels; i++) {
+        const x = padding + ((width - 2 * padding) / numOfXLabels) * i;
+        graphCtxCalibration.moveTo(x, padding);
+        graphCtxCalibration.lineTo(x, height - padding);
+        const label = (i * (xRange / numOfXLabels)).toFixed(0);
+        graphCtxCalibration.fillText(label, x - 5, height - padding + 15);
+    }
+
+    graphCtxCalibration.stroke();
+}
+
+/**
+ * Draws the line from the pixelCalPoints and nmCalPoints arrays
+ */
+
+function drawCalibrationLine() {
+    const width = graphCanvas.width;
+    const height = graphCanvas.height;
+    const padding = 30;
+    graphCtxCalibration.beginPath();
+
+    for (let i = 0; i < nmCalPoints.length; i++) {
+        const x = padding + ((pixelCalPoints[i] - pixelCalPoints[0]) / (pixelCalPoints[pixelCalPoints.length - 1] - pixelCalPoints[0])) * (width - 2 * padding);
+        const y = height - padding - (nmCalPoints[i] / 255) * (height - 2 * padding);
+
+        if (i === 0) {
+            graphCtxCalibration.moveTo(x, y);
+        } else {
+            graphCtxCalibration.lineTo(x, y);
+        }
+    }
+
+    graphCtxCalibration.strokeStyle = 'blue';
+    graphCtxCalibration.lineWidth = 1.5;
+    graphCtxCalibration.stroke();
 }
