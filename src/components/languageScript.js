@@ -6,8 +6,19 @@ document.addEventListener('DOMContentLoaded', () => {
         .then(response => response.json())
         .then(translations => updateTextContent(translations))
         .catch(error => console.error("Error loading language file:", error));
+
     const selectElement = document.getElementById('language');
     selectElement.value = selectedLang;
+
+    // Update button hrefs with the current language parameter
+    updateButtonLinks(selectedLang);
+
+    // Add event listener to update language dynamically
+    selectElement.addEventListener('change', () => {
+        const newLang = selectElement.value;
+        const currentUrl = window.location.href.split('?')[0]; // Strip query params
+        window.location.href = `${currentUrl}?lang=${newLang}`;
+    });
 });
 
 /**
@@ -25,8 +36,14 @@ function updateTextContent(translations) {
     });
 }
 
-document.getElementById('apply-language').addEventListener('click', () => {
-    const selectedLang = document.getElementById('language').value;
-    const currentUrl = window.location.href.split('?')[0]; // Strip query params
-    window.location.href = `${currentUrl}?lang=${selectedLang}`;
-});
+/**
+ * Updates href attributes of buttons based on the selected language
+ * @param {string} lang - The selected language code
+ */
+function updateButtonLinks(lang) {
+    const buttons = document.querySelectorAll('.button-container a');
+    buttons.forEach(button => {
+        const baseHref = button.getAttribute('href').split('?')[0]; // Strip query params
+        button.setAttribute('href', `${baseHref}?lang=${lang}`);
+    });
+}

@@ -2,12 +2,19 @@
 //    Video
 // ###########
 
+// Video element
 let videoElement = document.getElementById('videoSelect');
+// Camera selection dropdown
 const cameraSelect = document.getElementById('cameraSelect');
+//current camera used
 let cameraUsed = "";
+// Exposure slider
 const exposureSlider = document.getElementById('exposure');
 
-// Start streaming video from the specified device
+/**
+ * Start streaming video from the specified deviceId
+ * @param deviceId
+ */
 async function startStream(deviceId) {
     const constraints = {
         video: {
@@ -51,7 +58,9 @@ async function startStream(deviceId) {
     }
 }
 
-// Get the available video devices (cameras)
+/**
+ * Get the available video devices (cameras)
+ */
 async function getCameras() {
     try {
         const devices = await navigator.mediaDevices.enumerateDevices();
@@ -77,6 +86,9 @@ async function getCameras() {
     }
 }
 
+/**
+ * Request camera access first to ensure permissions are granted
+ */
 // Request camera access first to ensure permissions are granted
 async function requestCameraAccess() {
     try {
@@ -88,15 +100,18 @@ async function requestCameraAccess() {
     }
 }
 
+/**
+ * Resets the camera stream with the current camera
+ */
 async function resetCamera() {
-    const button = document.getElementById('pausePlayVideoButton');
+    document.getElementById("playVideoButton").style.display = "none";
+    document.getElementById("pauseVideoButton").style.display = "block";
     await startStream(cameraUsed);
-    if (button.innerText === "Play"){
-        button.innerText = "Pause";
-    }
 }
 
-// Event listener to switch between cameras
+/**
+ * Event listener to switch between cameras
+ */
 if (cameraSelect != null) {
     cameraSelect.addEventListener('change', () => {
         startStream(cameraSelect.value);
@@ -104,27 +119,41 @@ if (cameraSelect != null) {
     });
 }
 
-async function pausePlayVideo(){
-    const button = document.getElementById("pausePlayVideoButton");
-    if (button.innerText === "Pause"){
-        videoElement.pause();
-        button.innerText = "Play";
-    }
-    else{
-        videoElement.play();
-        button.innerText = "Pause";
-    }
+/**
+ * Pauses the video stream
+ */
+async function pauseVideo(){
+    videoElement.pause();
+    document.getElementById("playVideoButton").style.display = "inline";
+    document.getElementById("pauseVideoButton").style.display = "none";
 }
 
+/**
+ * Plays the video stream
+ */
+async function playVideo(){
+    videoElement.play();
+    document.getElementById("playVideoButton").style.display = "none";
+    document.getElementById("pauseVideoButton").style.display = "inline";
+}
+
+/**
+ * Changes the videoElement from img to video, so the camera can be used
+ */
 function getBackToCameraStream(){
-    videoElement.style.display = 'none'; // Show the video element
+    videoElement.style.display = 'none'; // Hide the image element
     videoElement = document.getElementById('videoMain');
-    videoElement.style.display = 'block'; // Show the video element
-    document.getElementById("cameraWindowControlsOnMeasureCameraStreaming").style.display = "block";
+    videoElement.style.display = 'inline'; // Show the video element
+    document.getElementById("screenshotCameraButton").style.display = "inline";
+    document.getElementById("cameraExposureButton").style.display = "inline";
+    document.getElementById("cameraWindowControlsOnMeasureCameraStreaming").style.display = "flex";
     document.getElementById("cameraWindowControlsOnMeasureFromPicture").style.display = "none";
     resetCamera();
 }
 
+/**
+ * Loads an image from the user's computer into the camera window
+ */
 function loadImageIntoCamera() {
     // Create a file input element
     const input = document.createElement('input');
@@ -146,6 +175,8 @@ function loadImageIntoCamera() {
                 videoElement.style.display = 'none'; // Hide the video element
                 document.getElementById("cameraWindowControlsOnMeasureCameraStreaming").style.display = "none";
                 document.getElementById("cameraWindowControlsOnMeasureFromPicture").style.display = "block";
+                document.getElementById("screenshotCameraButton").style.display = "none";
+                document.getElementById("cameraExposureButton").style.display = "none";
                 videoElement = document.getElementById('cameraImage');
                 videoElement.src = e.target.result;
                 videoElement.style.display = 'block'; // Show the image element
@@ -161,6 +192,11 @@ function loadImageIntoCamera() {
     input.click();
 }
 
+/**
+ * Returns the width of the element (video or image)
+ * @param element
+ * @returns {number}
+ */
 function getElementWidth(element) {
     if (element instanceof HTMLVideoElement) {
         return element.videoWidth;
@@ -172,6 +208,11 @@ function getElementWidth(element) {
     }
 }
 
+/**
+ * Returns the height of the element (video or image)
+ * @param element
+ * @returns {number}
+ */
 function getElementHeight(element) {
     if (element instanceof HTMLVideoElement) {
         return element.videoHeight;
@@ -188,26 +229,43 @@ requestCameraAccess();
 // #####################
 //    Camera Exposure
 // #####################
-let isRecording = false; // Flag to track recording state
 
+// Flag to track recording state
+let isRecording = false;
+
+/**
+ * Opens the camera exposure window
+ */
 function openCameraExposure(){
     const window = document.getElementById("cameraExposureWindow");
     window.style.display = "block";
 }
 
+/**
+ * Closes the camera exposure window
+ */
 function closeCameraExposure(){
     const window = document.getElementById("cameraExposureWindow");
     window.style.display = "none";
 }
 
+/**
+ * Opens the waiting window while the graph is being recorded
+ */
 function showCameraRecordingWindow(){
     document.getElementById("cameraRecordingIsOn").style.display = "block";
 }
 
+/**
+ * Closes the waiting window while the graph is being recorded
+ */
 function  closeCameraRecordingWindow(){
     document.getElementById("cameraRecordingIsOn").style.display = "none";
 }
 
+/**
+ * Terminates the ongoing recording
+ */
 function stopOngoingRecording(){
     if (isRecording) {
         isRecording = false; // Set flag to false to stop recording
@@ -216,6 +274,9 @@ function stopOngoingRecording(){
     }
 }
 
+/**
+ * Starts the recording of the graph
+ */
 function startCameraCapture(){
     if (videoElement.paused){
         alert("Camera is paused! To start capture please unpause the camera!");
@@ -249,7 +310,7 @@ function startCameraCapture(){
     const images = [];
     let imageIndex = 0;
 
-    // Funkcia na vytvorenie jednej snímky
+    // Creates one shot during the recording
     async function captureGraph() {
         if(!isRecording){
             return;
@@ -287,18 +348,18 @@ function startCameraCapture(){
         }
     }
 
-    // Funkcia na vytvorenie ZIP súboru
+    // Creates a ZIP file with all the captured images
     function createZip() {
         if(!isRecording){
             return;
         }
 
         images.forEach(image => {
-            // Pridanie každej snímky do ZIP súboru
+            // Adds each image to the ZIP file
             zip.file(image.name, image.data.split(',')[1], { base64: true });
         });
 
-        // Generovanie ZIP a jeho stiahnutie
+        // Generates the ZIP file and creates a download link
         zip.generateAsync({ type: 'blob' }).then(function (content) {
             const url = URL.createObjectURL(content); // Vytvorenie URL z blobu
             const link = document.createElement('a');
@@ -306,7 +367,7 @@ function startCameraCapture(){
             link.download = 'graphs.zip'; // Názov ZIP súboru
             link.click();
 
-            // Uvoľnenie pamäte pre URL
+            // Revoke the URL to free up memory
             URL.revokeObjectURL(url);
         });
 
@@ -317,7 +378,7 @@ function startCameraCapture(){
     isRecording = true; // Set flag to true to start recording
     closeCameraExposure();
     showCameraRecordingWindow();
-    // Začať sekvenciu snímok
+    // Start the recording process
     captureGraph();
 }
 
@@ -325,6 +386,9 @@ function startCameraCapture(){
 //    Graph save
 // ##################
 
+/**
+ * Saves the graph as an image
+ */
 function saveGraphImage(){
     const checkboxCombined = document.getElementById("toggleCombined");
     const checkboxRed = document.getElementById("toggleR");
@@ -337,10 +401,15 @@ function saveGraphImage(){
     }
 
     let wasPaused = false;
-    if(videoElement.paused){
+    if (videoElement instanceof HTMLImageElement){
         wasPaused = true;
     }
-    videoElement.pause();
+    else{
+        if(videoElement.paused){
+            wasPaused = true;
+        }
+        videoElement.pause();
+    }
 
     const graphImageData = graphCanvas.toDataURL('image/png');
 
@@ -355,6 +424,9 @@ function saveGraphImage(){
     }
 }
 
+/**
+ * Saves the camera image as an image
+ */
 function saveCameraImage(){
     const checkboxCombined = document.getElementById("toggleCombined");
     const checkboxRed = document.getElementById("toggleR");
@@ -394,10 +466,17 @@ function saveCameraImage(){
 //    Canvas/Pasik
 // ##################
 
+/**
+ * Returns the width of the stripe
+ * @returns {number}
+ */
 function getStripeWidth(){
     return stripeWidth;
 }
 
+/**
+ * Decreases the width of the stripe
+ */
 function decreaseStripeWidth() {
     const rangeInput = document.getElementById("stripeWidthRange");
     if (stripeWidth > parseInt(rangeInput.min, 10)) {
@@ -406,6 +485,9 @@ function decreaseStripeWidth() {
     }
 }
 
+/**
+ * Increases the width of the stripe
+ */
 function increaseStripeWidth() {
     const rangeInput = document.getElementById("stripeWidthRange");
     if (stripeWidth < parseInt(rangeInput.max, 10)) {
@@ -414,7 +496,10 @@ function increaseStripeWidth() {
     }
 }
 
-// Aktualizuje hodnotu šírky pásika na základe posuvníka
+/**
+ * Updates the width of the stripe based on the value
+ * @param value
+ */
 function updateStripeWidth(value) {
     stripeWidth = parseInt(value, 10);
     document.getElementById("stripeWidthValue").textContent = value;
@@ -433,11 +518,17 @@ function updateStripeWidth(value) {
     }
 }
 
+/**
+ * Returns the Y position as a percentage
+ * @returns {number}
+ */
 function getYPercentage() {
     return yPercentage;
 }
 
-// Draws the yellow selection line
+/**
+ * // Draws the yellow selection line knows as Stripe
+ */
 function drawSelectionLine() {
     ctx.clearRect(0, 0, c.width, c.height); // Clear the canvas
     ctx.beginPath(); // Start a new path to avoid connecting lines
@@ -449,6 +540,7 @@ function drawSelectionLine() {
     ctx.stroke();
 }
 
+// Canvas for the camera window
 var c = document.getElementById("cameraWindowCanvasRecording");
 
 // Unless the Canvas is present, nothing will be done with it
@@ -458,8 +550,10 @@ var stripeWidth = 1
 var videoWindow = document.getElementById("videoMainWindow");
 var computedStyle = getComputedStyle(videoWindow);
 
+// Set the canvas width and height to match the video window
 c.width = parseInt(computedStyle.width, 10);
 c.height = parseInt(computedStyle.height, 10);
+
 //set max width of stripe
 document.getElementById("stripeWidthRange").max = c.height;
 
@@ -481,4 +575,4 @@ c.addEventListener("click", function (event) {
 });
 
 // Initial draw of the line at the default percentage
-drawSelectionLine();    // Initial draw of the line at the default percentage
+drawSelectionLine();
