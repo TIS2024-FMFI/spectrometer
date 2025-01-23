@@ -88,6 +88,12 @@
     <button data-translate="export-button" id="exportCalibrationSettings" onclick="exportCalibrationFile()">Export calibration settings</button>
     <input type="file" name="my_file" id="my-file" onchange="importCalibrationFile()">
   </div>
+
+  <div id="graphWindowCalibration">
+    <canvas id="graphCalibration" width="800" height="400"></canvas>
+    <script src="../components/calibrationScript.js"></script>
+  </div>
+
 </div>
 
 <!-- Step 3 Recording limitation -->

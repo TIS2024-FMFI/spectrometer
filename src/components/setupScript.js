@@ -19,6 +19,7 @@ function changeStep(direction) {
     } else if (currentStep === 2) {
         document.getElementById('prevButton').disabled = false;
         document.getElementById('nextButton').disabled = false;
+        drawGridCalibration();
     } else if (currentStep === 3) {
         document.getElementById('stepper-buttons').classList.add('disabled');   // Removes stepper buttons
         videoElement = document.getElementById("videoMain");

@@ -70,7 +70,6 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
 
     clearGraph(graphCtx, graphCanvas);
     drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd);
-    drawCalibrationLine(graphCtx, graphCanvas);
 
     if (showReferenceGraph) {
         for (let i = 0; i < referenceGraph.length; i++) {
@@ -196,28 +195,6 @@ function clearGraph(graphCtx, graphCanvas) {
     graphCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
     graphCtx.fillStyle = 'white';
     graphCtx.fillRect(0, 0, graphCanvas.width, graphCanvas.height);
-}
-
-function drawCalibrationLine(graphCtx, graphCanvas) {
-    const width = graphCanvas.width;
-    const height = graphCanvas.height;
-    const padding = 30;
-    graphCtx.beginPath();
-
-    for (let i = 0; i < nmCalPoints.length; i++) {
-        const x = padding + ((pixelCalPoints[i] - pixelCalPoints[0]) / (pixelCalPoints[pixelCalPoints.length - 1] - pixelCalPoints[0])) * (width - 2 * padding);
-        const y = height - padding - (nmCalPoints[i] / 255) * (height - 2 * padding);
-
-        if (i === 0) {
-            graphCtx.moveTo(x, y);
-        } else {
-            graphCtx.lineTo(x, y);
-        }
-    }
-
-    graphCtx.strokeStyle = 'blue';
-    graphCtx.lineWidth = 1.5;
-    graphCtx.stroke();
 }
 
 function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd) {
