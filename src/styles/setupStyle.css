@@ -25,11 +25,15 @@ body, html {
 
 .navigation-buttons {
     margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .navigation-buttons button {
     padding: 10px 15px;
     margin-right: 10px;
+    height: 40px;
+    font-size: 1em;
     background-color: #007bff;
     color: white;
     border: none;

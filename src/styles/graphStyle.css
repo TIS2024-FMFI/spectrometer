@@ -5,3 +5,18 @@
 #checkboxWindow {
     display: block;
 }
+
+.GraphComponentWindow{
+    border: 1px solid black;
+}
+
+#graphWindow{
+    display: flex;
+    flex-direction: column-reverse;
+}
+
+#graphWindowContainer{
+    position: absolute;
+    top: 10%;
+    left: calc(396px + 5%);
+}

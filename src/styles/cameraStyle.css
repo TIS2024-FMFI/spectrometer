@@ -1,19 +1,35 @@
-#cameraMainWindow, #cameraSelectWindow{
-    margin: 10px 0 0 10px;
+#cameraSelectWindow{
+    margin: 10px 0 0 15px;
     width: 640px;
     height: 600px;
-    border: 1px solid black;
+}
+#cameraMainWindow{
+    margin: 10px 0 0 15px;
+    width: 381px;
 }
 #cameraSelect {
     margin-top: 20px;
     padding: 10px;
 }
-#videoMainWindow, #videoSelectWindow {
+#videoSelectWindow {
     position: relative;
     width: 100%;
     height: 480px;
 }
-#videoMain, #videoSelect, #cameraImage{
+#videoMainWindow{
+    position: relative;
+    width: 380px;
+    height: 285px;
+}
+#videoSelect{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+#videoMain, #cameraImage{
     position: absolute;
     top: 0;
     left: 0;
@@ -28,8 +44,25 @@
     width: 100%;
     height: 100%;
     z-index: 2;
-    border: 1px solid yellow;
+}
+#cameraWindowControlsOnSetUp{
+    margin-left: 10px;
+}
+.cameraWindowControlsOnSetUpButtons{
+    margin: 10px;
 }
 #cameraWindowControlsOnMeasureCameraStreaming{
+    margin-top: 10px;
     display: flex;
+}
+
+.buttonCameraStyle{
+    margin: 5px 5px 5px 0;
+    border-radius: 5px;
+    border: none;
+    background-color: #dfdfdf;
+}
+
+.buttonCameraStyle:hover{
+    cursor: pointer;
 }
