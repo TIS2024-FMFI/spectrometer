@@ -1,3 +1,5 @@
+
+
 body, html {
     margin: 0;
     padding: 0;
@@ -17,7 +19,11 @@ body, html {
     color: #333;
     margin-bottom: 10px;
 }
-
+.nav-menu{
+    position: absolute;
+    right: 30px;
+    bottom: 10px;
+}
 .nav-menu ul {
     list-style: none;
     padding: 0;
@@ -45,13 +51,18 @@ body, html {
 
 #cameraExposureWindow{
     position: absolute;
-    top: 10%;
-    right: 20%;
+    top: 40%;
+    left: 25%;
     width: 450px;
     height: 100px;
-    border: 2px solid black;
-    background-color: #939393;
+    padding: 5px;
+    background-color: #c8c8c8;
+    border-radius: 5px;
     z-index: 99;
+}
+
+#cameraExposureWindow label{
+    padding-top: 10px;
 }
 
 #cameraRecordingIsOn{
@@ -66,10 +77,40 @@ body, html {
 #cameraRecordingIsOnWindows{
     position: absolute;
     top: 40%;
-    left: 40%;
+    left: 25%;
     width: 250px;
-    height: 100px;
-    border: 2px solid black;
-    background-color: #939393;
+    height: 50px;
+    padding: 5px;
+    background-color: #c8c8c8;
+    border-radius: 5px;
     z-index: 99;
+}
+
+.SectionHeader{
+    margin-left: 15px;
+}
+
+.cameraButton{
+    background-color: #dfdfdf;
+    border: none;
+    text-align: center;
+    border-radius: 5px;
+    height: 40px;
+    font-size: 1em;
+}
+
+.InputCamera{
+    border: none;
+    border-radius: 5px;
+    background-color: #dfdfdf;
+}
+
+.cameraButton:hover{
+    cursor: pointer;
+}
+.margin-top-5px{
+    margin-top: 5px;
+}
+.margin-left-15px{
+    margin-left: 15px;
 }

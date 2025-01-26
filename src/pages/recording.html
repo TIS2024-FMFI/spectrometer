@@ -24,31 +24,28 @@
 
 <!-- Step 1 Camera selection & Pasik selection -->
 <div id="step1" class="step-container active">
-  <p data-translate="step1-title">Step 1: Camera Selection</p>
+  <p class="SectionHeader" data-translate="step1-title">Step 1: Camera Selection</p>
 
   <div id="cameraSelectWindow">
     <div id="videoSelectWindow">
       <video id="videoSelect" autoplay playsinline></video>
     </div>
     <div id="cameraWindowControlsOnSetUp">
-      <label>
-        <span data-translate="choose-camera">Choose camera:</span>
-        <select id="cameraSelect"></select>
-      </label>
-      <button data-translate="refresh-button" onclick="getCameras()">Refresh</button>
+      <select class="cameraWindowControlsOnSetUpButtons cameraButton" id="cameraSelect"></select>
+      <button class="cameraWindowControlsOnSetUpButtons cameraButton" id="cameraRefresh" data-translate="refresh-button" onclick="getCameras()">Refresh</button>
     </div>
   </div>
 </div>
 
 <!-- Step 2 Camera calibration -->
 <div id="step2" class="step-container">
-  <p data-translate="step2-title">Step 2: Camera calibration</p>
-  <div style="display:flex">
+  <p class="SectionHeader" data-translate="step2-title">Step 2: Camera calibration</p>
+  <div style="display:flex" class="margin-left-15px">
     <div style="width: 150px; text-align: right">px</div>
     <div style="width: 180px; text-align: right">nm</div>
   </div>
 
-  <div id="input-container">
+  <div id="input-container" class="margin-left-15px">
     <div>
       point 1:
       <label for="point1px"></label>
@@ -77,19 +74,19 @@
     </div>
   </div>
 
-  <div>
+  <div class="margin-left-15px">
     <button data-translate="addCalPoints-button" id="addPoints" onclick="addInputPair()">Add calibration points</button>
     <button data-translate="removeCalPoints-button" id="removePoints" onclick="removeInputPair(this)">Remove calibration points</button>
     <button data-translate="calibrate-button" id="calibrateButton" onclick="setCalibrationPoints()">Calibrate</button>
     <button data-translate="reset-button" id="resetCalibrationPoints" onclick="resetCalibrationPoints()">Reset calibration points</button>
   </div>
 
-  <div>
+  <div class="margin-left-15px">
     <button data-translate="export-button" id="exportCalibrationSettings" onclick="exportCalibrationFile()">Export calibration settings</button>
     <input type="file" name="my_file" id="my-file" onchange="importCalibrationFile()">
   </div>
 
-  <div id="graphWindowCalibration">
+  <div id="graphWindowCalibration" class="margin-left-15px">
     <canvas id="graphCalibration" width="800" height="400"></canvas>
     <script src="../components/calibrationScript.js"></script>
   </div>
@@ -98,13 +95,7 @@
 
 <!-- Step 3 Recording limitation -->
 <div id="step3" class="step-container">
-    <p data-translate="recording-title">Recording</p>
-    <nav class="nav-menu">
-      <ul>
-        <li><a data-translate="home-button" href="index.html" class="btn">Home</a></li>
-        <li><a data-translate="newRecording-button" href="recording.html" class="btn">New Recording</a></li>
-      </ul>
-    </nav>
+    <p class="SectionHeader" data-translate="recording-title">Recording</p>
 
     <!-- Camera -->
     <div id="cameraMainWindow">
@@ -116,25 +107,25 @@
       </div>
       <div id="cameraWindowControlsOnMeasure">
         <div id="cameraWindowControlsOnMeasureCameraStreaming">
-          <button data-translate="refresh-button" onclick="resetCamera()">Refresh</button>
-          <button data-translate="pause-button" onclick="pauseVideo()" id="pauseVideoButton">Pause</button>
-          <button data-translate="play-button" onclick="playVideo()" id="playVideoButton" style="display: none">Play</button>
-          <button data-translate="load_image" onclick="loadImageIntoCamera()">Load Image</button>
+          <button class="buttonCameraStyle" data-translate="refresh-button" onclick="resetCamera()">Refresh</button>
+          <button class="buttonCameraStyle" data-translate="pause-button" onclick="pauseVideo()" id="pauseVideoButton">Pause</button>
+          <button class="buttonCameraStyle" data-translate="play-button" onclick="playVideo()" id="playVideoButton" style="display: none">Play</button>
+          <button class="buttonCameraStyle" data-translate="load_image" onclick="loadImageIntoCamera()">Load Image</button>
         </div>
         <div id="cameraWindowControlsOnMeasureFromPicture" style="display: none">
-          <button data-translate="resume-camera" onclick="getBackToCameraStream()">Resume Camera</button>
-          <button data-translate="load_image" onclick="loadImageIntoCamera()">Load Image</button>
+          <button class="buttonCameraStyle" data-translate="resume-camera" onclick="getBackToCameraStream()">Resume Camera</button>
+          <button class="buttonCameraStyle" data-translate="load_image" onclick="loadImageIntoCamera()">Load Image</button>
         </div>
         <label for="stripeWidthRange">
           <span data-translate="stripe-width">Stripe Width:</span>
-          <button onclick="decreaseStripeWidth()">-</button>
+          <button class="buttonCameraStyle" onclick="decreaseStripeWidth()">-</button>
           <input type="range" id="stripeWidthRange" min="1" max="255" value="1" onchange="updateStripeWidth(this.value)">
-          <button onclick="increaseStripeWidth()">+</button>
+          <button class="buttonCameraStyle" onclick="increaseStripeWidth()">+</button>
           <span id="stripeWidthValue">1</span> px
         </label>
-        <button id="screenshotCameraButton" data-translate="screenshot-camera" onclick="saveCameraImage()">Screenshot camera</button>
-        <button data-translate="screenshot-graph" onclick="saveGraphImage()">Screenshot graph</button>
-        <button id="cameraExposureButton" data-translate="camExp-button" onclick="openCameraExposure()">Camera Exposure</button>
+        <button class="buttonCameraStyle" id="screenshotCameraButton" data-translate="screenshot-camera" onclick="saveCameraImage()">Screenshot camera</button>
+        <button class="buttonCameraStyle" data-translate="screenshot-graph" onclick="saveGraphImage()">Screenshot graph</button>
+        <button class="buttonCameraStyle" id="cameraExposureButton" data-translate="camExp-button" onclick="openCameraExposure()">Camera Exposure</button>
       </div>
       <div id="referenceGraph">
         <label>
@@ -142,58 +133,69 @@
           <input type="checkbox" id="referenceGraphCheckbox">
         </label>
         <div id="referenceGraphControl" style="display: none">
-          <button data-translate="add-reference" onclick="addReferenceLine()">Add reference</button>
-          <button data-translate="reset-references" onclick="removeReferenceLinesAndAddNewReferenceLine()">Reset references</button>
+          <button class="buttonCameraStyle" data-translate="add-reference" onclick="addReferenceLine()">Add reference</button>
+          <button class="buttonCameraStyle" data-translate="reset-references" onclick="removeReferenceLinesAndAddNewReferenceLine()">Reset references</button>
         </div>
       </div>
     </div>
 
     <!-- Camera Exposure Window -->
     <div id="cameraExposureWindow" style="display: none">
-      <button data-translate="close-button" onclick="closeCameraExposure()">close</button>
-      <br>
-      <label for="NumOfSamples">
-        <span data-translate="numOfCap">Number of Captures</span>
-        <input type="number" id="NumOfSamples" name="NumOfSamples" min="1" value="5">
-      </label>
-      <br>
-      <label for="timeOfPause">
-        <span data-translate="pauseBetCap">Pause in between captures </span>
-        <input type="number" id="timeOfPause" name="timeOfPause" min="200" value="300">
-        <span>(in ms.)</span>
-      </label>
-      <br>
-      <label for="screenshotOfGraph">
-        <span data-translate="screenshot-graph">screenshot graph</span>
-        <input type="checkbox" id="screenshotOfGraph" name="screenshotOfGraph">
-      </label>
-      <button data-translate="capture-button" onclick="startCameraCapture()">Capture</button>
+      <div>
+        <button class="buttonCameraStyle" data-translate="close-button" onclick="closeCameraExposure()">close</button>
+      </div>
+      <div class="margin-top-5px">
+        <label for="NumOfSamples">
+          <span data-translate="numOfCap">Number of Captures</span>
+          <input class="InputCamera" type="number" id="NumOfSamples" name="NumOfSamples" min="1" value="5">
+        </label>
+      </div>
+      <div class="margin-top-5px">
+        <label  for="timeOfPause">
+          <span data-translate="pauseBetCap">Pause in between captures </span>
+          <input class="InputCamera" type="number" id="timeOfPause" name="timeOfPause" min="200" value="300">
+          <span>(in ms.)</span>
+        </label>
+      </div>
+      <div class="margin-top-5px">
+        <label  for="screenshotOfGraph">
+          <span data-translate="screenshot-graph">screenshot graph</span>
+          <input class="InputCamera" type="checkbox" id="screenshotOfGraph" name="screenshotOfGraph">
+        </label>
+        <button class="buttonCameraStyle" data-translate="capture-button" onclick="startCameraCapture()">Capture</button>
+      </div>
     </div>
 
     <!-- While camera/graph is being recorder-->
     <div id="cameraRecordingIsOn" style="display: none">
       <div id="cameraRecordingIsOnWindows">
         <span data-translate="recording-screenshots">Recording screenshots...</span>
-        <button data-translate="cancel" onclick="stopOngoingRecording()">Cancel</button>
+        <button class="buttonCameraStyle" data-translate="cancel" onclick="stopOngoingRecording()">Cancel</button>
       </div>
     </div>
 
     <!-- Graph -->
-    <div id="checkboxWindow">
-        <label><input type="checkbox" id="toggleCombined" checked> <span data-translate="combined">Combined</span></label>
-        <label><input type="checkbox" id="toggleR"> R</label>
-        <label><input type="checkbox" id="toggleG"> G</label>
-        <label><input type="checkbox" id="toggleB"> B</label>
-    </div>
+  <div id="graphWindowContainer">
     <div id="graphWindow">
-      <button data-translate="reset-zoom" id="resetZoomButton">Reset Zoom</button>
-      <label for="toggleXLabelsPx"> <span data-translate="X-px">X-axis Labels (px)</span></label>
-      <input type="radio" id="toggleXLabelsPx" name="toggleXLabels" value="px" checked>
-      <label for="toggleXLabelsNm"><span data-translate="X-nm">X-axis Labels (nm)</span></label>
-      <input type="radio" id="toggleXLabelsNm" name="toggleXLabels" value="nm">
-      <canvas id="graphCanvas" width="800" height="400"></canvas>
-      <script src="../components/graphScript.js"></script>
-      <canvas id="stripeCanvas" width="800" height="50"></canvas>
+      <div>
+        <button class="buttonCameraStyle" data-translate="reset-zoom" id="resetZoomButton">Reset Zoom</button>
+        <label for="toggleXLabelsPx"> <span data-translate="X-px">X-axis Labels (px)</span></label>
+        <input type="radio" id="toggleXLabelsPx" name="toggleXLabels" value="px" checked>
+        <label for="toggleXLabelsNm"><span data-translate="X-nm">X-axis Labels (nm)</span></label>
+        <input type="radio" id="toggleXLabelsNm" name="toggleXLabels" value="nm">
+      </div>
+      <div>
+        <canvas id="stripeCanvas" width="800" height="50"></canvas>
+        <canvas id="graphCanvas" width="800" height="400"></canvas>
+        <script src="../components/graphScript.js"></script>
+      </div>
+    </div>
+
+    <div id="checkboxWindow">
+      <label><input type="checkbox" id="toggleCombined" checked> <span data-translate="combined">Combined</span></label>
+      <label><input type="checkbox" id="toggleR"> R</label>
+      <label><input type="checkbox" id="toggleG"> G</label>
+      <label><input type="checkbox" id="toggleB"> B</label>
     </div>
 
     <div id="peaksSection">
@@ -218,6 +220,14 @@
         <input id="exposure" type="range" min="10" max="3000" step="1" value="1000">
     </div>
   </div>
+
+  <nav class="nav-menu">
+    <ul>
+      <li><a data-translate="home-button" href="index.html" class="btn">Home</a></li>
+      <li><a data-translate="newRecording-button" href="recording.html" class="btn">New Recording</a></li>
+    </ul>
+  </nav>
+</div>
 
 
 <!--  Buttons to navigate in the stepper  -->
