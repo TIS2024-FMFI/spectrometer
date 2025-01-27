@@ -5,10 +5,8 @@ let isDragging = false;
 let dragStartX = 0;
 let dragEndX = 0;
 let animationId;
-let showPeaks = false;
 let smoothing = 0;
 let minValue = 0;
-let distance = 1;
 let referenceColors = ['#ff7602' ,'#ffdd00' ,'#00ffd3' ,'#8f5bf8',
                                 '#d64d4d', '#a6794b', '#77ba7b', '#f800ff',
                                 '#f89a8e', '#cabb6e', '#237c24', '#3109a5',
@@ -18,6 +16,7 @@ let referenceColors = ['#ff7602' ,'#ffdd00' ,'#00ffd3' ,'#8f5bf8',
 let referenceGraph = [];
 let captureReferenceGraph = false;
 let showReferenceGraph = false;
+let mouseUp = true;
 
 
 function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth = 1) {
@@ -31,8 +30,6 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
     const graphCanvas = document.getElementById('graphCanvas');
     const graphCtx = graphCanvas.getContext('2d', { willReadFrequently: true });
 
-    setupEventListeners(videoElement);
-
     function draw() {
         drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition, stripeWidth);
         if (!(videoElement instanceof HTMLImageElement)) {
@@ -40,11 +37,11 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         }
     }
 
+    setupEventListeners(videoElement, draw, graphCanvas);
     draw();
 }
 
 function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition, stripeWidth) {
-
     const { toggleCombined, toggleR, toggleG, toggleB } = getToggleStates();
     const startY = getElementHeight(videoElement) * stripePosition - stripeWidth / 2;
     ctx.drawImage(videoElement, 0, startY, getElementWidth(videoElement), stripeWidth, 0, 0, getElementWidth(videoElement), stripeWidth);
@@ -57,7 +54,7 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
     }
 
     if (captureReferenceGraph) {
-        referenceGraph.push([pixels, pixelWidth, smoothing, minValue, distance]);
+        referenceGraph.push([pixels, pixelWidth, smoothing, minValue]);
         captureReferenceGraph = false;
     }
 
@@ -73,26 +70,31 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
 
     if (showReferenceGraph) {
         for (let i = 0; i < referenceGraph.length; i++) {
-            let [tempPixels, tempPixelWidth, tempSmoothing, tempMinValue, tempDistance] = referenceGraph[i];
+            let [tempPixels, tempPixelWidth, tempSmoothing, tempMinValue] = referenceGraph[i];
             if (zoomList.length === 2) {
                 tempPixels = tempPixels.slice(zoomStart * 4, zoomEnd * 4);
                 tempPixelWidth = zoomEnd - zoomStart;
             }
-            drawLine(graphCtx, tempPixels, tempPixelWidth, referenceColors[i % referenceColors.length], -1, tempSmoothing, tempMinValue, tempDistance);
+            drawLine(graphCtx, tempPixels, tempPixelWidth, referenceColors[i % referenceColors.length], -1, tempSmoothing, tempMinValue);
         }
     }
 
     if (toggleCombined) {
-        drawLine(graphCtx, pixels, pixelWidth, 'black', -1, smoothing, minValue, distance);
+        drawLine(graphCtx, pixels, pixelWidth, 'black', -1, smoothing, minValue);
     }
     if (toggleR) {
-        drawLine(graphCtx, pixels, pixelWidth, 'red', 0, smoothing, minValue, distance);
+        drawLine(graphCtx, pixels, pixelWidth, 'red', 0, smoothing, minValue);
     }
     if (toggleG) {
-        drawLine(graphCtx, pixels, pixelWidth, 'green', 1, smoothing, minValue, distance);
+        drawLine(graphCtx, pixels, pixelWidth, 'green', 1, smoothing, minValue);
     }
     if (toggleB) {
-        drawLine(graphCtx, pixels, pixelWidth, 'blue', 2, smoothing, minValue, distance);
+        drawLine(graphCtx, pixels, pixelWidth, 'blue', 2, smoothing, minValue);
+    }
+
+    if (document.getElementById('togglePeaksCheckbox').checked) {
+        const maxima = findMaxima(pixels, pixelWidth, minValue);
+        drawMaxima(graphCtx, maxima, graphCanvas);
     }
 
     if (isDragging) {
@@ -106,15 +108,31 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
 }
 
 function drawCursorCoordinates(graphCtx, graphCanvas, cursorCoordinates, videoElement) {
-    // Check if coordinates are out of bounds
     let displayX = cursorCoordinates.x;
     let displayY = cursorCoordinates.y;
-    if (displayX < 0 || displayX > videoElement.videoWidth || displayY < 0 || displayY > 255) {
+    let elementWidth;
+
+    if (videoElement instanceof HTMLImageElement) {
+        elementWidth = videoElement.naturalWidth;
+    } else {
+        elementWidth = videoElement.videoWidth;
+    }
+
+    let xLowerBound = 0;
+    let xUpperBound = elementWidth;
+
+    if (zoomList.length === 2) {
+        const [zoomStart, zoomEnd] = zoomList;
+        displayX = Math.round(zoomStart + (displayX / (graphCanvas.width - 60)) * (zoomEnd - zoomStart));
+        xLowerBound = zoomStart;
+        xUpperBound = zoomEnd;
+    }
+
+    if (displayX < xLowerBound || displayX > xUpperBound || displayY < 0 || displayY > 255) {
         displayX = 'N/A';
         displayY = 'N/A';
     }
 
-    // Draw the cursor coordinates
     const text = `X: ${displayX}, Y: ${displayY}`;
     const textWidth = graphCtx.measureText(text).width;
     const textX = graphCanvas.width - 150 + (150 - textWidth) / 2;
@@ -145,6 +163,31 @@ function averagePixels(pixels, pixelWidth, stripeWidth) {
     return averagedPixels;
 }
 
+function findMaxima(pixels, pixelWidth, minValue) {
+    let maxima = [];
+    for (let x = 1; x < pixelWidth - 1; x++) {
+        let value = calculateMaxColor(pixels, x);
+        console.log(`x: ${x}, value: ${value}, left: ${calculateMaxColor(pixels, x - 1)}, right: ${calculateMaxColor(pixels, x + 1)}`);
+        if (value > minValue && value > calculateMaxColor(pixels, x - 1) && value > calculateMaxColor(pixels, x + 1)) {
+            maxima.push({ x, value });
+        }
+    }
+    console.log('Maxima:', maxima);
+    console.log('Pixels:', pixels);
+    return maxima;
+}
+
+function drawMaxima(graphCtx, maxima, graphCanvas) {
+    graphCtx.fillStyle = 'red';
+    maxima.forEach(max => {
+        const x = calculateXPosition(max.x, graphCanvas.width);
+        const y = calculateYPosition(max.value, graphCanvas.height);
+        graphCtx.beginPath();
+        graphCtx.arc(x, y, 3, 0, 2 * Math.PI);
+        graphCtx.fill();
+    });
+}
+
 function createLineCanvas(videoElement, stripeWidth) {
     const lineCanvas = document.createElement('canvas');
     lineCanvas.width = getElementWidth(videoElement);
@@ -152,24 +195,110 @@ function createLineCanvas(videoElement, stripeWidth) {
     return lineCanvas;
 }
 
-function setupEventListeners(videoElement) {
-    videoElement.addEventListener('loadedmetadata', function() {
-        document.getElementById('distanceRange').max = videoElement.videoWidth;
-    });
-
+function setupEventListeners(videoElement, draw, graphCanvas) {
     document.getElementById('smoothingRange').addEventListener('input', function() {
         smoothing = parseInt(this.value);
         document.getElementById('smoothingValue').textContent = smoothing;
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
+        }
+    });
+
+    document.getElementById('togglePeaksCheckbox').addEventListener('change', () => {
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
+        }
     });
 
     document.getElementById('minValueRange').addEventListener('input', function() {
         minValue = parseInt(this.value, 10);
         document.getElementById('minValueValue').textContent = minValue;
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
+        }
     });
 
-    document.getElementById('distanceRange').addEventListener('input', function() {
-        distance = parseInt(this.value, 10);
-        document.getElementById('distanceValue').textContent = distance;
+    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+            if (videoElement instanceof HTMLImageElement) {
+                draw();
+            }
+        });
+    });
+
+    document.getElementById('resetZoomButton').addEventListener('click', () => {
+        zoomList = [];
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
+        }
+    });
+
+    const referenceGraphCheckbox = document.getElementById('referenceGraphCheckbox');
+    referenceGraphCheckbox.addEventListener('change', () => {
+        if (referenceGraphCheckbox.checked) {
+            document.getElementById("referenceGraphControl").style.display = "block";
+            showReferenceGraph = true;
+        } else {
+            document.getElementById("referenceGraphControl").style.display = "none";
+            showReferenceGraph = false;
+        }
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
+        }
+    });
+
+    graphCanvas.addEventListener('mousedown', (event) => {
+        isDragging = true;
+        mouseUp = false;
+        const rect = graphCanvas.getBoundingClientRect();
+        dragStartX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
+        dragEndX = dragStartX; // Initialize dragEndX to dragStartX
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
+        }
+    });
+
+    graphCanvas.addEventListener('mousemove', (event) => {
+        const rect = graphCanvas.getBoundingClientRect();
+        const x = event.clientX - rect.left;
+        const y = event.clientY - rect.top;
+
+        let elementWidth;
+        if (videoElement instanceof HTMLImageElement) {
+            elementWidth = videoElement.naturalWidth;
+        } else {
+            elementWidth = videoElement.videoWidth;
+        }
+
+        cursorCoordinates.x = Math.round((x - 30) / (graphCanvas.width - 60) * elementWidth);
+
+        if (zoomList.length === 2) {
+            cursorCoordinates.x = Math.round((x - 30) / (elementWidth) * elementWidth);
+        }
+
+        cursorCoordinates.y = Math.round(255 - ((y - 30) / (graphCanvas.height - 60) * 255));
+
+        if (isDragging) {
+            dragEndX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
+
+            if (zoomList.length === 2) {
+                dragEndX = Math.max(30, Math.min(event.clientX - rect.left, elementWidth));
+            }
+        }
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
+        }
+    });
+
+    graphCanvas.addEventListener('mouseup', () => {
+        if (isDragging) {
+            isDragging = false;
+            addZoomRange(dragStartX, dragEndX);
+            if (videoElement instanceof HTMLImageElement) {
+                draw();
+            }
+        }
+        mouseUp = true;
     });
 }
 
@@ -239,9 +368,8 @@ function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd) {
     graphCtx.stroke();
 }
 
-function drawLine(graphCtx, pixels, pixelWidth, color, colorOffset, smoothing, minValue, distance) {
+function drawLine(graphCtx, pixels, pixelWidth, color, colorOffset, smoothing) {
     graphCtx.beginPath();
-    const maxima = [];
 
     for (let x = 0; x < pixelWidth; x++) {
         let value = smoothedValue(pixels, x, colorOffset, smoothing, pixelWidth);
@@ -253,22 +381,11 @@ function drawLine(graphCtx, pixels, pixelWidth, color, colorOffset, smoothing, m
         } else {
             graphCtx.lineTo(scaledX, y);
         }
-
-        if (colorOffset === -1 && showPeaks && value >= minValue &&
-            (x > 0 && x < pixelWidth - 1 &&
-                value > smoothedValue(pixels, x - 1, colorOffset, smoothing, pixelWidth) &&
-                value > smoothedValue(pixels, x + 1, colorOffset, smoothing, pixelWidth))) {
-            maxima.push({ x, value });
-        }
     }
 
     graphCtx.strokeStyle = color;
     graphCtx.lineWidth = 1;
     graphCtx.stroke();
-
-    if (colorOffset === -1 && showPeaks) {
-        drawMaxima(graphCtx, maxima, pixelWidth, graphCtx.canvas.width, graphCtx.canvas.height, minValue, distance);
-    }
 }
 
 function smoothedValue(pixels, x, colorOffset, smoothing, pixelWidth) {
@@ -303,43 +420,26 @@ function calculateXPosition(x, pixelWidth, canvasWidth) {
     return padding + (x / (pixelWidth - 1)) * (canvasWidth - 2 * padding);
 }
 
-function drawMaxima(graphCtx, maxima, pixelWidth, canvasWidth, canvasHeight, minValue, distance) {
-    const padding = 30;
-    const filteredMaxima = [];
-    for (let segmentStart = 0; segmentStart < pixelWidth; segmentStart += distance) {
-        const segmentEnd = segmentStart + distance;
-        let highestMaximum = null;
-
-        maxima.forEach((max) => {
-            if (max.x >= segmentStart && max.x < segmentEnd) {
-                if (!highestMaximum || max.value > highestMaximum.value) {
-                    highestMaximum = max;
-                }
-            }
-        });
-
-        if (highestMaximum) {
-            filteredMaxima.push(highestMaximum);
-        }
-    }
-
-    filteredMaxima.forEach(({ x, value }) => {
-        const scaledX = padding + (x / pixelWidth) * (canvasWidth - 2 * padding);
-        const scaledY = canvasHeight - padding - (value / 255) * (canvasHeight - 2 * padding);
-
-        graphCtx.beginPath();
-        graphCtx.arc(scaledX, scaledY, 3, 0, 2 * Math.PI, false);
-        graphCtx.fillStyle = 'magenta';
-        graphCtx.fill();
-        graphCtx.strokeStyle = 'magenta';
-        graphCtx.stroke();
-    });
-}
-
 function addZoomRange(startX, endX) {
     const graphCanvas = document.getElementById('graphCanvas');
-    const startIndex = Math.floor((startX - 30) / (graphCanvas.width - 60) * videoElement.videoWidth);
-    const endIndex = Math.floor((endX - 30) / (graphCanvas.width - 60) * videoElement.videoWidth);
+    const rect = graphCanvas.getBoundingClientRect();
+    const canvasWidth = rect.width - 60; // Adjust for padding
+
+    let elementWidth;
+    if (videoElement instanceof HTMLImageElement) {
+        elementWidth = videoElement.naturalWidth;
+    } else {
+        elementWidth = videoElement.videoWidth;
+    }
+
+    let zoomStart = 0;
+    let zoomEnd = elementWidth;
+    if (zoomList.length === 2) {
+        [zoomStart, zoomEnd] = zoomList;
+    }
+
+    const startIndex = Math.floor(zoomStart + (startX - 30) / canvasWidth * (zoomEnd - zoomStart));
+    const endIndex = Math.floor(zoomStart + (endX - 30) / canvasWidth * (zoomEnd - zoomStart));
 
     if (Math.abs(startIndex - endIndex) < 2) {
         console.log('Zoom range too small, zoom not applied.');
@@ -363,56 +463,6 @@ function removeReferenceLinesAndAddNewReferenceLine() {
     referenceGraph = [];
     addReferenceLine();
 }
-
-// Event listener pre kliknutie na canvas
-const graphCanvas = document.getElementById('graphCanvas');
-
-graphCanvas.addEventListener('mousedown', (event) => {
-    isDragging = true;
-    const rect = graphCanvas.getBoundingClientRect();
-    dragStartX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
-    dragEndX = dragStartX; // Initialize dragEndX to dragStartX
-});
-
-graphCanvas.addEventListener('mousemove', (event) => {
-    const rect = graphCanvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    // Calculate the graph-specific x and y values
-    cursorCoordinates.x = Math.round((x - 30) / (graphCanvas.width - 60) * videoElement.videoWidth);
-    cursorCoordinates.y = Math.round(255 - ((y - 30) / (graphCanvas.height - 60) * 255));
-
-    if (isDragging) {
-        dragEndX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
-    }
-});
-
-graphCanvas.addEventListener('mouseup', () => {
-    if (isDragging) {
-        isDragging = false;
-        addZoomRange(dragStartX, dragEndX);
-    }
-});
-
-// Event listener pre resetovanie zoomu
-document.getElementById('resetZoomButton').addEventListener('click', () => {
-    zoomList = [];
-    console.log('Zoom list reset:', zoomList);
-});
-
-// Event listener for turning on/off references in graph
-const referenceGraphCheckbox = document.getElementById('referenceGraphCheckbox');
-referenceGraphCheckbox.addEventListener('change', () => {
-    if (referenceGraphCheckbox.checked) {
-        document.getElementById("referenceGraphControl").style.display = "block";
-        showReferenceGraph = true;
-    }
-    else {
-        document.getElementById("referenceGraphControl").style.display = "none";
-        showReferenceGraph = false;
-    }
-});
 
 // Event listener pre zmenu šírky pásika
 document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
