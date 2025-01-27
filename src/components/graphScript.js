@@ -27,8 +27,12 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
 
     const lineCanvas = createLineCanvas(videoElement, stripeWidth);
     const ctx = lineCanvas.getContext('2d', { willReadFrequently: true });
-    const graphCanvas = document.getElementById('graphCanvas');
-    const graphCtx = graphCanvas.getContext('2d', { willReadFrequently: true });
+    let graphCanvas = document.getElementById('graphCanvas');
+
+    graphCanvas.width = document.getElementById("graphWindowContainer").getBoundingClientRect().width;
+    graphCanvas.height = document.getElementById("graphWindowContainer").getBoundingClientRect().height;
+
+    let graphCtx = graphCanvas.getContext('2d', { willReadFrequently: true });
 
     function draw() {
         drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition, stripeWidth);
@@ -37,6 +41,14 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         }
     }
 
+    const resizeObserver = new ResizeObserver(() => {
+        graphCanvas.width = document.getElementById("graphWindowContainer").getBoundingClientRect().width;
+        graphCanvas.height = document.getElementById("graphWindowContainer").getBoundingClientRect().height;
+        graphCtx = graphCanvas.getContext('2d', { willReadFrequently: true });
+    });
+
+// Start observing the graphCanvas element
+    resizeObserver.observe(graphCanvas);
     setupEventListeners(videoElement, draw, graphCanvas);
     draw();
 }

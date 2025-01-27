@@ -10,15 +10,24 @@
 }
 
 #graphWindow{
+    position: relative;
     display: flex;
     flex-direction: column-reverse;
+    height: calc(100% - 128px);
 }
 
 #graphWindowContainer{
     position: absolute;
     top: 60px;
     left: calc(396px + 5%);
-    width: 800px;
+    width: calc(100% - 396px - 5% - 40px);
+    height: calc(100% - 60px - 96px);
+}
+
+#graphCanvasWindow{
+    position: relative;
+    width: 100%;
+    height: calc(100% - 27px);
 }
 
 #stripeCanvas{
@@ -28,6 +37,11 @@
     margin-right: 30px;
     position: relative;
     z-index: 3;
+}
+
+#graphCanvas{
+    width: 100%;
+    height: calc(100% - 50px);
 }
 
 .ParentElement{
