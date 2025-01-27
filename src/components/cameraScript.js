@@ -50,6 +50,9 @@ async function startStream(deviceId) {
         }
         // Makes sure the graph is drawn into its canvas the moment the stream starts
         videoElement.onloadedmetadata = () => {
+            if(videoElement.videoWidth === 1280){
+                document.getElementById("videoMainWindow").style.height = "214px";
+            }
             plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
         };
     } catch (error) {
@@ -559,6 +562,7 @@ document.getElementById("stripeWidthRange").max = c.height;
 
 // Event listener for mouse clicks on the canvas
 c.addEventListener("click", function (event) {
+    c.height = parseInt(getComputedStyle(videoWindow).height,10);
     var rect = c.getBoundingClientRect(); // Get canvas position
     var y = event.clientY - rect.top; // Calculate Y within canvas
     if (y < getStripeWidth()/2){

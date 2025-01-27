@@ -24,6 +24,9 @@ body, html {
 }
 
 .navigation-buttons {
+    position: absolute;
+    right: 30px;
+    bottom: 30px;
     margin-top: 20px;
     display: flex;
     justify-content: flex-end;

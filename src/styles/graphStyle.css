@@ -7,7 +7,6 @@
 }
 
 .GraphComponentWindow{
-    border: 1px solid black;
 }
 
 #graphWindow{
@@ -17,6 +16,30 @@
 
 #graphWindowContainer{
     position: absolute;
-    top: 10%;
+    top: 60px;
     left: calc(396px + 5%);
+    width: 800px;
+}
+
+#stripeCanvas{
+    width: calc(100% - 60px);
+    height: 50px;
+    margin-left: 30px;
+    margin-right: 30px;
+    position: relative;
+    z-index: 3;
+}
+
+.ParentElement{
+    position: relative;
+}
+
+#blackBox{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 50px;
+    background-color: black;
+    z-index: 1;
 }

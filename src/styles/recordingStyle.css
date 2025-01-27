@@ -21,8 +21,8 @@ body, html {
 }
 .nav-menu{
     position: absolute;
-    right: 30px;
-    bottom: 10px;
+    right: 40px;
+    bottom: 14px;
 }
 .nav-menu ul {
     list-style: none;
