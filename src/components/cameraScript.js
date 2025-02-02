@@ -181,6 +181,7 @@ function loadImageIntoCamera() {
                 videoElement.src = e.target.result;
                 videoElement.style.display = 'block'; // Show the image element
                 videoElement.onload = () => {
+                    needToRecalculateMaxima = true;
                     plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
                 };
             };
@@ -514,6 +515,7 @@ function updateStripeWidth(value) {
     }
     drawSelectionLine();
     if (videoElement) {
+        needToRecalculateMaxima = true;
         plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
     }
 }
@@ -570,6 +572,7 @@ c.addEventListener("click", function (event) {
     yPercentage = y / c.height; // Update global variable as percentage
     drawSelectionLine(); // Redraw line at the new position
     if (videoElement) {
+        needToRecalculateMaxima = true;
         plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
     }
 });
