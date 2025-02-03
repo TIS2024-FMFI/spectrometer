@@ -4,7 +4,9 @@
     height: 600px;
 }
 #cameraMainWindow{
-    margin: 10px 0 0 15px;
+    position: absolute;
+    top: 60px;
+    left: 15px;
     width: 381px;
 }
 #cameraSelect {
@@ -19,7 +21,7 @@
 #videoMainWindow{
     position: relative;
     width: 380px;
-    height: 285px;
+    height: 285px; <!-- {720: 285px, 1280: 214px} -->
 }
 #videoSelect{
     position: absolute;
