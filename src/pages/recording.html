@@ -75,14 +75,14 @@
   </div>
 
   <div class="margin-left-15px">
-    <button data-translate="addCalPoints-button" id="addPoints" onclick="addInputPair()">Add calibration points</button>
-    <button data-translate="removeCalPoints-button" id="removePoints" onclick="removeInputPair(this)">Remove calibration points</button>
-    <button data-translate="calibrate-button" id="calibrateButton" onclick="setCalibrationPoints()">Calibrate</button>
-    <button data-translate="reset-button" id="resetCalibrationPoints" onclick="resetCalibrationPoints()">Reset calibration points</button>
+    <button class="buttonCameraStyle" data-translate="addCalPoints-button" id="addPoints" onclick="addInputPair()">Add calibration points</button>
+    <button class="buttonCameraStyle" data-translate="removeCalPoints-button" id="removePoints" onclick="removeInputPair(this)">Remove calibration points</button>
+    <button class="buttonCameraStyle" data-translate="calibrate-button" id="calibrateButton" onclick="setCalibrationPoints()">Calibrate</button>
+    <button class="buttonCameraStyle" data-translate="reset-button" id="resetCalibrationPoints" onclick="resetCalibrationPoints()">Reset calibration points</button>
   </div>
 
   <div class="margin-left-15px">
-    <button data-translate="export-button" id="exportCalibrationSettings" onclick="exportCalibrationFile()">Export calibration settings</button>
+    <button class="buttonCameraStyle" data-translate="export-button" id="exportCalibrationSettings" onclick="exportCalibrationFile()">Export calibration settings</button>
     <input type="file" name="my_file" id="my-file" onchange="importCalibrationFile()">
   </div>
 
@@ -214,9 +214,10 @@
       <input type="range" id="minValueRange" min="0" max="255" value="0">
       <span id="minValueValue">0</span>
       <br>
-      <label data-translate="distance" for="distanceRange">Distance</label>
-      <input type="range" id="distanceRange" min="1" max="500" value="1">
-      <span id="distanceValue">1</span>
+      <label>
+        <input type="checkbox" id="toggleYCoordinate">
+        Show Y-coordinate of X-coordinate in the graph
+      </label>
     </div>
     <div id="cameraExposure">
       <label data-translate="adjust-exposure" for="exposure">Adjust Exposure:</label>
