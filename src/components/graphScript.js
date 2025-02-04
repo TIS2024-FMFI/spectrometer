@@ -8,11 +8,11 @@ let animationId;
 let smoothing = 0;
 let minValue = 0;
 let referenceColors = ['#ff7602' ,'#ffdd00' ,'#00ffd3' ,'#8f5bf8',
-                                '#d64d4d', '#a6794b', '#77ba7b', '#f800ff',
-                                '#f89a8e', '#cabb6e', '#237c24', '#3109a5',
-                                '#ff6767', '#545a03', '#4cb15f', '#6a0345',
-                                '#a51104', '#ffbb28', '#1a371a', '#470925',
-                                '#9f9f00', '#a8ac6b', '#956f83', '#a53be4']
+    '#d64d4d', '#a6794b', '#77ba7b', '#f800ff',
+    '#f89a8e', '#cabb6e', '#237c24', '#3109a5',
+    '#ff6767', '#545a03', '#4cb15f', '#6a0345',
+    '#a51104', '#ffbb28', '#1a371a', '#470925',
+    '#9f9f00', '#a8ac6b', '#956f83', '#a53be4']
 let referenceGraph = [];
 let captureReferenceGraph = false;
 let showReferenceGraph = false;
@@ -49,6 +49,9 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         graphCanvas.width = document.getElementById("graphWindowContainer").getBoundingClientRect().width;
         graphCanvas.height = document.getElementById("graphWindowContainer").getBoundingClientRect().height;
         graphCtx = graphCanvas.getContext('2d', { willReadFrequently: true });
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
+        }
     });
 
 // Start observing the graphCanvas element
@@ -250,13 +253,15 @@ function findMaxima(pixels, pixelWidth, minValue) {
     }
 
     // Check for maximum at the first pixel
-    if (smoothedValue(pixels, 0, -1, smoothing, pixelWidth) > smoothedValue(pixels, 1, -1, smoothing, pixelWidth)) {
-        maxima.push({ x: 0, value: Math.floor(smoothedValue(pixels, 0, -1, smoothing, pixelWidth)) });
+    const firstPixelValue = smoothedValue(pixels, 0, -1, smoothing, pixelWidth);
+    if (firstPixelValue > smoothedValue(pixels, 1, -1, smoothing, pixelWidth) && firstPixelValue > minValue) {
+        maxima.push({ x: 0, value: Math.floor(firstPixelValue) });
     }
 
     // Check for maximum at the last pixel
-    if (smoothedValue(pixels, pixelWidth - 1, -1, smoothing, pixelWidth) > smoothedValue(pixels, pixelWidth - 2, -1, smoothing, pixelWidth)) {
-        maxima.push({ x: pixelWidth - 1, value: Math.floor(smoothedValue(pixels, pixelWidth - 1, -1, smoothing, pixelWidth)) });
+    const lastPixelValue = smoothedValue(pixels, pixelWidth - 1, -1, smoothing, pixelWidth);
+    if (lastPixelValue > smoothedValue(pixels, pixelWidth - 2, -1, smoothing, pixelWidth) && lastPixelValue > minValue) {
+        maxima.push({ x: pixelWidth - 1, value: Math.floor(lastPixelValue) });
     }
 
     return maxima;
@@ -425,18 +430,6 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
                 draw();
             }
         });
-    });
-
-    window.addEventListener('resize', () => {
-        if (videoElement instanceof HTMLImageElement) {
-            draw();
-        }
-    });
-
-    document.getElementById('stripeWidthRange').addEventListener('input', function() {
-        if (videoElement instanceof HTMLImageElement) {
-            draw();
-        }
     });
 }
 
