@@ -31,7 +31,7 @@ function updateTextContent(translations) {
         const value = translations[key];
 
         if (value) {
-            element.textContent = value;
+            element.innerHTML = value;
         }
     });
 }
