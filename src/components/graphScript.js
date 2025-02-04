@@ -194,7 +194,6 @@ function drawCursorCoordinates(graphCtx, graphCanvas, cursorCoordinates, videoEl
 }
 
 function getGraphDataAtX(x, pixels, xStart, xEnd) {
-    console.log(x, xEnd)
     if (x < 0 || x >= xEnd) {
         return { y: 'N/A' };
     }
@@ -266,9 +265,6 @@ function findMaxima(pixels, pixelWidth, minValue) {
 
     return maxima;
 }
-
-// console.log(`x: ${x}, value: ${value}, left: ${prevValue}, right: ${nextValue}`);
-// console.log('Maxima:', maxima);
 
 function drawDottedLine(ctx, x, yStart, yEnd, color) {
     ctx.beginPath();
@@ -585,8 +581,6 @@ function addZoomRange(startX, endX) {
 
     zoomList[0] = Math.max(0, zoomList[0]);
     zoomList[1] = Math.min(elementWidth, zoomList[1]);
-
-    console.log('Zoom range:', zoomList);
 }
 
 function addReferenceLine() {
