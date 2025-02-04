@@ -9,16 +9,124 @@
   <script src="../components/languageScript.js"></script>
 </head>
 <body>
+
 <div class="container">
-  <h1 class="title">How To Page</h1>
-  <p class="description">
-    This page will contain tutorials on how to use this website.
-  </p>
+
+  <!--  -->
+
+  <img src="../tutorialImages/cameraSelection.png" alt="Camera Image" width="600" height="500">
+
+  <h3 data-translate="step1">Step 1: Enabling and selecting the camera</h3>
+
+  <div class="step">
+    <p data-translate="allowingAccessToCam"><span class="highlight">1. Allow camera access</span></p>
+    <p data-translate="allowingAccessToCamDesc">When prompted in the browser, click <strong>"Allow"</strong> to enable the website to use the camera. If the prompt does not appear, check the browser settings and manually enable camera access.</p>
+  </div>
+
+  <div class="step">
+    <p data-translate="cameraChoice"><span class="highlight">2. Select the correct camera</span></p>
+    <p data-translate="cameraChoiceDesc">Use the dropdown menu to select the camera you want to use. If your camera is not listed, click the <strong>"Refresh"</strong> button to reload the devices.</p>
+  </div>
+
+  <div class="step">
+    <p data-translate="troubleshooting"><span class="highlight">3. Troubleshooting</span></p>
+    <p data-translate="troubleshootingDesc">If you see the <em>"Camera not available"</em> icon, it means the camera is blocked or not recognized. Make sure the camera is properly connected and not being used by another application. Refresh the page and try again.</p>
+  </div>
+
+  <img src="../tutorialImages/calibration.png" alt="Calibration Image" width="600" height="500">
+
+  <h3 data-translate="step2">Step 2: Camera calibration</h3>
+
+  <div class="step">
+    <p data-translate="fillingOutCalibration"><span class="highlight">1. Filling out calibration points</span></p>
+    <p data-translate="fillingOutCalibrationDesc">If you're a new user, you need to manually enter the calibration points first. If you already have a file with calibration points, you can upload it using the <strong>"Choose file"</strong> button. Once uploaded, the form will be automatically filled out.</p>
+  </div>
+
+  <div class="step">
+    <p data-translate="afterCalibration"><span class="highlight">2. Calibrating</span></p>
+    <p data-translate="afterCalibrationDesc">Once all points are entered, press the <strong>"Calibrate"</strong> button. The system will calculate the calibration line and display it in a graph below the form.</p>
+  </div>
+
+  <div class="step">
+    <p data-translate="savingCalibration"><span class="highlight">3. Saving calibration (OPTIONAL)</span></p>
+    <p data-translate="savingCalibrationDesc">To save the calibration points for future use, click the <strong>"Export calibration points"</strong> button. You can save the file to your device and load it later.</p>
+
+  <p data-translate="importantButtons"><span class="highlight">Other important buttons and functions</span></p>
+
+  <ul>
+    <li data-translate="step2choice1">/<strong>"Add calibration points"</strong> – Adds a new pair of calibration points.</li>
+    <li data-translate="step2choice2"><strong>"Remove calibration points"</strong> – Removes the last pair of calibration points</li>
+    <li data-translate="step2choice3"><strong>"Reset"</strong> – Resets the calibration form</li>
+  </ul>
+
+  </div>
+  
+  <img src="../tutorialImages/recording.png" alt="Recording Image" width="600" height="400">
+
+  <div class="step">
+    <h3 data-translate="step3">3. Setting the stripe width</h3>
+    <img src="../tutorialImages/recordingStripe.png" alt="stripe" width="400" height="430">
+
+    <p data-translate="step3Desc">The user can adjust the width of the stripe that will be used for image analysis. The stripe indicates the area from which data will be gathered to create the graph.</p>
+
+    <p data-translate="changingStripeWidth"><span class="highlight">How to set the stripe width?</span></p>
+    <ul>
+      <li data-translate="changingStripeWidthChoice1">The stripe width can be changed by sliding the slider left or right.</li>
+      <li data-translate="changingStripeWidthChoice2">You can also increase or decrease the stripe width using the <strong>"+"</strong> and <strong>"-"</strong> buttons.</li>
+    </ul>
+    <p data-translate="changingStripeWidthDesc">After setting the correct stripe width, this area will be used to generate the final graph.</p>
+
+    <p data-translate="importantButtons"><span class="highlight">Other important buttons and functions</span></p>
+
+    <ul>
+      <li data-translate="step3choice1"><strong>"Refresh"</strong> – Refreshes the image from the camera.</li>
+      <li data-translate="step3choice2"><strong>"Load image"</strong> – Allows loading an image from the device.</li>
+      <li data-translate="step3choice3"><strong>"Camera screenshot"</strong> – Takes a snapshot from the camera.</li>
+      <li data-translate="step3choice4"><strong>"Graph screenshot"</strong> – Takes a snapshot from the graph.</li>
+      <li data-translate="step3choice5"><strong>"Camera exposure"</strong> – Allows manual adjustment of the camera exposure.</li>
+      <li data-translate="step3choice6"><strong>"Reference graph"</strong> – After clicking, two buttons will appear:
+        <ul>
+          <li data-translate="step3choice7"><strong>"Add reference"</strong> – Adds a reference graph for comparison.</li>
+          <li data-translate="step3choice8"><strong>"Reset reference"</strong> – Removes references.</li>
+        </ul>
+      </li>
+    </ul>
+
+  </div>
+
+  <div class="step">
+    <h3 data-translate="step4">4. Graph</h3>
+    <img src="../tutorialImages/recordingGraph.png" alt="Recording Graph" width="600" height="400">
+
+    <p data-translate="step4Desc">We can zoom into the graph by clicking the mouse and dragging over the part we want to enlarge. The current cursor position in the graph is shown in the top right corner.</p>
+
+    <p data-translate="importantButtons"><span class="highlight">Other important buttons</span></p>
+
+    <ul>
+      <li data-translate="step4choice1"><strong>"Reset zoom"</strong> – Returns the graph to its original state after zooming in.</li>
+      <li data-translate="step4choice2"><strong>"X-axis labels (px)"</strong> – Changes the X-axis labels to pixels.</li>
+      <li data-translate="step4choice3"><strong>"X-axis labels (nm)"</strong> – Changes the X-axis labels to nanometers.</li>
+      <li data-translate="step4choice4"><strong>"Combined"</strong> – Displays RGB components of light together.</li>
+        <ul>
+          <li data-translate="step4choice5"><strong>"R"</strong> – Displays the red component of light.</li>
+          <li data-translate="step4choice6"><strong>"G"</strong> – Displays the green component of light.</li>
+          <li data-translate="step4choice7"><strong>"B"</strong> – Displays the blue component of light.</li>
+        </ul>
+      <li data-translate="step4choice8"><strong>"Toggle Peaks"</strong> – Highlights the highest parts of the graph.</li>
+      <li data-translate="step4choice9"><strong>"Smoothing"</strong> – Allows applying a filter to smooth the graph.</li>
+      <li data-translate="step4choice10"><strong>"Minimum value"</strong> – Sets the minimum signal value on the graph.</li>
+      <li data-translate="step4choice11"><strong>"Set exposure"</strong> – Allows manual adjustment of the camera exposure.</li>
+    </ul>
+
+  </div>
+
   <nav class="nav-menu">
     <ul>
       <li><a href="index.html" class="btn">Index</a></li>
     </ul>
   </nav>
 </div>
+
+
 </body>
 </html>
