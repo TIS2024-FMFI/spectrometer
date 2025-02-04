@@ -131,7 +131,7 @@ function drawCursorCoordinates(graphCtx, graphCanvas, cursorCoordinates, videoEl
 
     if (zoomList.length === 2) {
         const [zoomStart, zoomEnd] = zoomList;
-        displayX = Math.round(zoomStart + (displayX / (graphCanvas.width - 60)) * (zoomEnd - zoomStart));
+        displayX = Math.floor(zoomStart + (displayX / (graphCanvas.width - 60)) * (zoomEnd - zoomStart));
         xLowerBound = zoomStart;
         xUpperBound = zoomEnd;
     }
@@ -143,8 +143,24 @@ function drawCursorCoordinates(graphCtx, graphCanvas, cursorCoordinates, videoEl
 
     const toggleYCoordinate = document.getElementById('toggleYCoordinate').checked;
     if (toggleYCoordinate && displayX !== 'N/A') {
-        const graphData = getGraphDataAtX(displayX, pixels, xLowerBound, xUpperBound); // Pass pixels and pixelWidth
+        const graphData = getGraphDataAtX(displayX, pixels, xLowerBound, xUpperBound);
         displayY = graphData ? graphData.y : 'N/A';
+
+        if (displayY !== 'N/A') {
+            const xPos = calculateXPosition(displayX - xLowerBound, xUpperBound - xLowerBound, graphCanvas.width);
+            const yPos = calculateYPosition(displayY, graphCanvas.height);
+
+            graphCtx.beginPath();
+            graphCtx.arc(xPos, yPos, 3, 0, 2 * Math.PI, false);
+            graphCtx.fillStyle = 'red';
+            graphCtx.fill();
+            graphCtx.closePath();
+        }
+    }
+
+    const toggleXLabelsNm = document.getElementById('toggleXLabelsNm').checked;
+    if (toggleXLabelsNm && displayX !== 'N/A') {
+        displayX = Math.floor(getWaveLengthByPx(displayX));
     }
 
     const textX = `X: ${displayX}`;
@@ -157,9 +173,9 @@ function drawCursorCoordinates(graphCtx, graphCanvas, cursorCoordinates, videoEl
     graphCtx.fillStyle = 'white';
     graphCtx.fillRect(textXPos - 5, 0, Math.max(textWidthX, textWidthY) + 10, 15);
     graphCtx.fillStyle = 'black';
-    graphCtx.font = '10px Arial'; // Smaller font size
-    graphCtx.fillText(textX, textXPos, 12); // X coordinate
-    graphCtx.fillText(textY, textXPos, 24); // Y coordinate
+    graphCtx.font = '10px Arial';
+    graphCtx.fillText(textX, textXPos, 12);
+    graphCtx.fillText(textY, textXPos, 24);
 }
 
 function getGraphDataAtX(x, pixels, xStart, xEnd) {
@@ -372,10 +388,11 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
             dragEndX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
 
             if (zoomList.length === 2) {
-                dragEndX = Math.max(30, Math.min(event.clientX - rect.left, elementWidth));
+                dragEndX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
             }
         }
         if (videoElement instanceof HTMLImageElement) {
+            needToRecalculateMaxima = true;
             draw();
         }
     });
@@ -387,6 +404,26 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
             if (videoElement instanceof HTMLImageElement) {
                 draw();
             }
+        }
+    });
+
+    document.querySelectorAll('input[name="toggleXLabels"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            if (videoElement instanceof HTMLImageElement) {
+                draw();
+            }
+        });
+    });
+
+    window.addEventListener('resize', () => {
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
+        }
+    });
+
+    document.getElementById('stripeWidthRange').addEventListener('input', function() {
+        if (videoElement instanceof HTMLImageElement) {
+            draw();
         }
     });
 }
@@ -540,6 +577,10 @@ function addZoomRange(startX, endX) {
     } else {
         zoomList = [startIndex, endIndex];
     }
+
+    zoomList[0] = Math.max(0, zoomList[0]);
+    zoomList[1] = Math.min(elementWidth, zoomList[1]);
+
     console.log('Zoom range:', zoomList);
 }
 
