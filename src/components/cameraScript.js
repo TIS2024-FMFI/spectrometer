@@ -458,7 +458,7 @@ function saveCameraImage(){
     // Vytvorenie dočasného odkazu na stiahnutie
     const link = document.createElement('a');
     link.href = videoImageData;
-    link.download = 'graph.png'; // Názov uloženého súboru
+    link.download = 'image.png'; // Názov uloženého súboru
     link.click();
 
     if (!wasPaused) {
@@ -494,7 +494,7 @@ function decreaseStripeWidth() {
  */
 function increaseStripeWidth() {
     const rangeInput = document.getElementById("stripeWidthRange");
-    if (stripeWidth < parseInt(rangeInput.max, 10)) {
+    if (stripeWidth < parseInt(50, 10)) {
         rangeInput.value = stripeWidth + 1;
         updateStripeWidth(rangeInput.value);
     }
@@ -560,7 +560,7 @@ c.width = parseInt(computedStyle.width, 10);
 c.height = parseInt(computedStyle.height, 10);
 
 //set max width of stripe
-document.getElementById("stripeWidthRange").max = c.height;
+document.getElementById("stripeWidthRange").max = 50;
 
 // Event listener for mouse clicks on the canvas
 c.addEventListener("click", function (event) {
