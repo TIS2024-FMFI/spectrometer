@@ -298,13 +298,15 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
         }
     });
 
-    const referenceGraphCheckbox = document.getElementById('referenceGraphCheckbox');
-    addEventListener(referenceGraphCheckbox, 'change', () => {
+    document.getElementById('referenceGraphCheckbox').addEventListener( 'change', () => {
+        const referenceGraphCheckbox = document.getElementById('referenceGraphCheckbox');
         if (referenceGraphCheckbox.checked) {
             document.getElementById("referenceGraphControl").style.display = "block";
+            console.log('show');
             showReferenceGraph = true;
         } else {
             document.getElementById("referenceGraphControl").style.display = "none";
+            console.log('hide');
             showReferenceGraph = false;
         }
         if (videoElement instanceof HTMLImageElement) {

@@ -8,10 +8,7 @@ let currentStep = 1;
 function changeStep(direction) {
 
     if (direction === 1) {
-        if (currentStep === 2 && calibrationData.length === 0) {    // Prevents moving from step2 to step 3 if it is not calibrated
-            alert("No calibration data to export. Please calibrate first.");
-            return;
-        } else if (currentStep === 1 && cameraUsed.trim().length === 0) {   // Prevents moving from step1 to step2 if no camera is selected
+        if (currentStep === 1 && cameraUsed.trim().length === 0) {   // Prevents moving from step1 to step2 if no camera is selected
             alert("No available camera. Please connect a camera first.");
             return;
         }

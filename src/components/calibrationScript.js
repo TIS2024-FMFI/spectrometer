@@ -148,7 +148,7 @@ function getWaveLengthByPx(pixel) {
 }
 
 /**
- * delets the content of polyFitCoefficientsArray, calibrationData, pixelCalPoints, nmCalPoints before saving new values
+ * deletes the content of polyFitCoefficientsArray, calibrationData, pixelCalPoints, nmCalPoints before saving new values
  */
 function resetCalValues() {
     polyFitCoefficientsArray = [];
@@ -292,6 +292,7 @@ function drawGridCalibration() {
  */
 
 function drawCalibrationLine() {
+    const graphCanvas = document.getElementById('graphCalibration');
     const width = graphCanvas.width;
     const height = graphCanvas.height;
     const padding = 30;
