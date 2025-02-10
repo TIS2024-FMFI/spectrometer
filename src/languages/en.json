@@ -15,6 +15,7 @@
   "calibrate-button": "Calibrate",
   "reset-button": "Reset",
   "export-button": "Export calibration settings",
+  "point": "Point",
 
   "recording-title": "Recording",
   "record-button": "Record",
@@ -50,6 +51,7 @@
   "distance": "Distance",
   "adjust-exposure": "Adjust Exposure",
   "play-button": "Play",
+  "togglePeaks": "Toggle Peaks",
 
   "step1": "Step 1: Enabling and selecting the camera",
   "allowingAccessToCam": "1. Allow camera access",

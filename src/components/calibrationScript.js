@@ -24,32 +24,35 @@ function addInputPair() {
     const container = document.getElementById("input-container");
     const div = document.createElement("div");
 
-    const pointLabel = document.createElement("span");
-    pointLabel.textContent = `Point ${inputBoxCounter}: `;
+    // Label for the translation of "Point"
+    const pointLabel = document.createElement("label");
+    pointLabel.setAttribute("data-translate", "point")
+
+    // Label for the numbering
+    const numberLabel = document.createElement("label");
+    numberLabel.textContent = ` ${inputBoxCounter}: `;
 
     // Create the first input for px with label
-    const labelPx = document.createElement("label");
-    labelPx.setAttribute("for", `point${inputBoxCounter}px`);
     const inputPx = document.createElement("input");
-    inputPx.type = "number";
     inputPx.id = `point${inputBoxCounter}px`;
+    inputPx.type = "number";
 
     // Create the second input for nm with label
-    const labelNm = document.createElement("label");
-    labelNm.setAttribute("for", `point${inputBoxCounter}nm`);
     const inputNm = document.createElement("input");
-    inputNm.type = "number";
     inputNm.id = `point${inputBoxCounter}nm`;
+    inputNm.type = "number";
 
     // Append everything to the div
     div.appendChild(pointLabel);
-    div.appendChild(labelPx);
+    div.appendChild(numberLabel);
     div.appendChild(inputPx);
-    div.appendChild(labelNm);
     div.appendChild(inputNm);
 
     // Append the div to the container
     container.appendChild(div);
+
+    // Sets the labels for the new pair
+    updateTextContent();
 }
 
 /**
