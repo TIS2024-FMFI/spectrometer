@@ -30,7 +30,6 @@ async function startStream(deviceId) {
         const videoTrack = stream.getVideoTracks()[0];
         const capabilities = videoTrack.getCapabilities();
 
-        //TODO: Need to retest this with spectrometer
         if ('exposureMode' in capabilities) {
             // Set the exposure mode to manual
             await videoTrack.applyConstraints({
@@ -81,7 +80,7 @@ async function getCameras() {
 
         // If there are cameras, start with the first one
         if (videoDevices.length > 0) {
-            startStream(videoDevices[0].deviceId);
+            await startStream(videoDevices[0].deviceId);
             cameraUsed = videoDevices[0].deviceId;
         }
     } catch (error) {
@@ -95,7 +94,10 @@ async function getCameras() {
 // Request camera access first to ensure permissions are granted
 async function requestCameraAccess() {
     try {
-        await navigator.mediaDevices.getUserMedia({ video: true });
+        await navigator.mediaDevices.getUserMedia({ video: {
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            } });
         await getCameras();
     } catch (error) {
         console.error('Camera access was denied.', error);
