@@ -1,6 +1,5 @@
 // Slúži na priblíženie grafu na základe kliknutia na canvas
 let zoomList = [];
-let cursorCoordinates = { x: 'N/A', y: 'N/A' };
 let isDragging = false;
 let dragStartX = 0;
 let dragEndX = 0;
@@ -18,6 +17,7 @@ let captureReferenceGraph = false;
 let showReferenceGraph = false;
 let needToRecalculateMaxima = true;
 let maxima = [];
+let eventListeners = [];
 
 
 function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth = 1) {
@@ -39,9 +39,7 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition, stripeWidth);
         if (!(videoElement instanceof HTMLImageElement)) {
             animationId = requestAnimationFrame(draw);
-            if (!videoElement.paused) {
-                needToRecalculateMaxima = true;
-            }
+            needToRecalculateMaxima = true;
         }
     }
 
@@ -90,34 +88,44 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
     }
 
     clearGraph(graphCtx, graphCanvas);
-    drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd);
+    drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd, pixels);
+
+    // Calculate the maximum value from the pixels
+    let maxValue = 0;
+    for (let i = 0; i < pixels.length; i += 4) {
+        const value = Math.max(pixels[i], pixels[i + 1], pixels[i + 2]);
+        if (value > maxValue) {
+            maxValue = value;
+        }
+    }
+    maxValue += 5; // Add 5 to the maximum value
 
     if (showReferenceGraph) {
         for (let i = 0; i < referenceGraph.length; i++) {
-            let [tempPixels, tempPixelWidth, tempSmoothing, tempMinValue] = referenceGraph[i];
+            let [tempPixels, tempPixelWidth, tempSmoothing] = referenceGraph[i];
             if (zoomList.length === 2) {
                 tempPixels = tempPixels.slice(zoomStart * 4, zoomEnd * 4);
                 tempPixelWidth = zoomEnd - zoomStart;
             }
-            drawLine(graphCtx, tempPixels, tempPixelWidth, referenceColors[i % referenceColors.length], -1, tempSmoothing, tempMinValue);
+            drawLine(graphCtx, tempPixels, tempPixelWidth, referenceColors[i % referenceColors.length], -1, tempSmoothing, maxValue);
         }
     }
 
     if (toggleCombined) {
-        drawLine(graphCtx, pixels, pixelWidth, 'black', -1, smoothing, minValue);
+        drawLine(graphCtx, pixels, pixelWidth, 'black', -1, smoothing, maxValue);
     }
     if (toggleR) {
-        drawLine(graphCtx, pixels, pixelWidth, 'red', 0, smoothing, minValue);
+        drawLine(graphCtx, pixels, pixelWidth, 'red', 0, smoothing, maxValue);
     }
     if (toggleG) {
-        drawLine(graphCtx, pixels, pixelWidth, 'green', 1, smoothing, minValue);
+        drawLine(graphCtx, pixels, pixelWidth, 'green', 1, smoothing, maxValue);
     }
     if (toggleB) {
-        drawLine(graphCtx, pixels, pixelWidth, 'blue', 2, smoothing, minValue);
+        drawLine(graphCtx, pixels, pixelWidth, 'blue', 2, smoothing, maxValue);
     }
 
     if (document.getElementById('togglePeaksCheckbox').checked && maxima.length > 0) {
-        drawMaxima(graphCtx, maxima, graphCanvas, zoomStart, zoomEnd);
+        drawMaxima(graphCtx, maxima, graphCanvas, zoomStart, zoomEnd, maxValue);
     }
 
     if (isDragging) {
@@ -126,84 +134,6 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
         graphCtx.fillStyle = 'rgba(0, 0, 255, 0.2)';
         graphCtx.fillRect(rectX, 30, rectWidth, graphCanvas.height - 60);
     }
-
-    drawCursorCoordinates(graphCtx, graphCanvas, cursorCoordinates, videoElement, pixels);
-}
-
-function drawCursorCoordinates(graphCtx, graphCanvas, cursorCoordinates, videoElement, pixels) {
-    let displayX = cursorCoordinates.x;
-    let displayY = cursorCoordinates.y;
-    let elementWidth;
-
-    if (videoElement instanceof HTMLImageElement) {
-        elementWidth = videoElement.naturalWidth;
-    } else {
-        elementWidth = videoElement.videoWidth;
-    }
-
-    let xLowerBound = 0;
-    let xUpperBound = elementWidth;
-
-    if (zoomList.length === 2) {
-        const [zoomStart, zoomEnd] = zoomList;
-        displayX = Math.floor(zoomStart + (displayX / (graphCanvas.width - 60)) * (zoomEnd - zoomStart));
-        xLowerBound = zoomStart;
-        xUpperBound = zoomEnd;
-    }
-
-    if (displayX < xLowerBound || displayX > xUpperBound || displayY < 0 || displayY > 255) {
-        displayX = 'N/A';
-        displayY = 'N/A';
-    }
-
-    const toggleYCoordinate = document.getElementById('toggleYCoordinate').checked;
-    if (toggleYCoordinate && displayX !== 'N/A') {
-        const graphData = getGraphDataAtX(displayX, pixels, xLowerBound, xUpperBound);
-        displayY = graphData ? graphData.y : 'N/A';
-
-        if (displayY !== 'N/A') {
-            const xPos = calculateXPosition(displayX - xLowerBound, xUpperBound - xLowerBound, graphCanvas.width);
-            const yPos = calculateYPosition(displayY, graphCanvas.height);
-
-            graphCtx.beginPath();
-            graphCtx.arc(xPos, yPos, 3, 0, 2 * Math.PI, false);
-            graphCtx.fillStyle = 'red';
-            graphCtx.fill();
-            graphCtx.closePath();
-        }
-    }
-
-    const toggleXLabelsNm = document.getElementById('toggleXLabelsNm').checked;
-    if (toggleXLabelsNm && displayX !== 'N/A') {
-        displayX = Math.floor(getWaveLengthByPx(displayX));
-    }
-
-    const textX = `X: ${displayX}`;
-    const textY = `Y: ${displayY}`;
-    const textWidthX = graphCtx.measureText(textX).width;
-    const textWidthY = graphCtx.measureText(textY).width;
-    const textXPos = graphCanvas.width - Math.max(textWidthX, textWidthY);
-
-    graphCtx.clearRect(textXPos - 5, 0, Math.max(textWidthX, textWidthY) + 10, 15);
-    graphCtx.fillStyle = 'white';
-    graphCtx.fillRect(textXPos - 5, 0, Math.max(textWidthX, textWidthY) + 10, 15);
-    graphCtx.fillStyle = 'black';
-    graphCtx.font = '10px Arial';
-    graphCtx.fillText(textX, textXPos, 12);
-    graphCtx.fillText(textY, textXPos, 24);
-}
-
-function getGraphDataAtX(x, pixels, xStart, xEnd) {
-    if (x < 0 || x >= xEnd) {
-        return { y: 'N/A' };
-    }
-
-    let y = calculateMaxColor(pixels, x - xStart);
-    if (smoothing > 0) {
-        y = Math.floor(smoothedValue(pixels, x - xStart, -1, smoothing, xEnd));
-    }
-
-    return { y };
 }
 
 function averagePixels(pixels, pixelWidth, stripeWidth) {
@@ -277,32 +207,33 @@ function drawDottedLine(ctx, x, yStart, yEnd, color) {
     ctx.setLineDash([]); // Reset the line dash pattern
 }
 
-function drawMaxima(ctx, maxima, canvas, zoomStart, zoomEnd) {
+function drawMaxima(ctx, maxima, canvas, zoomStart, zoomEnd, maxValue) {
     const padding = 30;
     const height = canvas.height;
     maxima.forEach(max => {
         if (max.x >= zoomStart && max.x <= zoomEnd) {
             const x = calculateXPosition(max.x - zoomStart, zoomEnd - zoomStart, canvas.width);
-            const y = calculateYPosition(max.value, height);
+            const y = calculateYPosition(max.value, height, maxValue);
             drawDottedLine(ctx, x, height - padding, y, 'red');
-            drawPeakLabel(ctx, x, y, max.x, max.value);
+            drawPeakLabel(ctx, x, y, max.x);
         }
     });
 }
 
-function drawPeakLabel(ctx, x, y, peakX, peakY) {
-    const label = `(${peakX}, ${peakY})`;
+function drawPeakLabel(ctx, x, y, peakX) {
+    const toggleXLabelsPx = document.getElementById('toggleXLabelsPx').checked;
+    let label;
+    if (!toggleXLabelsPx) {
+        label = `X: ${getWaveLengthByPx(peakX).toFixed(0)}`;
+    } else {
+        label = `X: ${peakX}`;
+    }
     const textWidth = ctx.measureText(label).width;
-    const textHeight = 16; // Approximate height of the text
-    const padding = 5;
-
-    ctx.fillStyle = 'white';
-    ctx.fillRect(x - textWidth / 2 - padding, y - textHeight - padding * 2, textWidth + padding * 2, textHeight);
-    ctx.strokeStyle = 'black';
-    ctx.strokeRect(x - textWidth / 2 - padding, y - textHeight - padding * 2, textWidth + padding * 2, textHeight);
+    const textHeight = 20; // Increase the text height for bigger text
 
     ctx.fillStyle = 'black';
-    ctx.fillText(label, x - textWidth / 2, y - textHeight / 2 - padding);
+    ctx.font = 'bold 14px Arial'; // Make the text bigger and bold
+    ctx.fillText(label, x - textWidth / 2, y - textHeight / 2);
 }
 
 function createLineCanvas(videoElement, stripeWidth) {
@@ -312,8 +243,22 @@ function createLineCanvas(videoElement, stripeWidth) {
     return lineCanvas;
 }
 
+function removeEventListeners() {
+    eventListeners.forEach(({ element, type, listener }) => {
+        element.removeEventListener(type, listener);
+    });
+    eventListeners = [];
+}
+
 function setupEventListeners(videoElement, draw, graphCanvas) {
-    document.getElementById('smoothingRange').addEventListener('input', function() {
+    removeEventListeners();
+
+    function addEventListener(element, type, listener) {
+        element.addEventListener(type, listener);
+        eventListeners.push({ element, type, listener });
+    }
+
+    addEventListener(document.getElementById('smoothingRange'), 'input', function() {
         smoothing = parseInt(this.value);
         document.getElementById('smoothingValue').textContent = smoothing;
         if (videoElement instanceof HTMLImageElement) {
@@ -322,14 +267,14 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
         }
     });
 
-    document.getElementById('togglePeaksCheckbox').addEventListener('change', () => {
+    addEventListener(document.getElementById('togglePeaksCheckbox'), 'change', () => {
         if (videoElement instanceof HTMLImageElement) {
             needToRecalculateMaxima = true;
             draw();
         }
     });
 
-    document.getElementById('minValueRange').addEventListener('input', function() {
+    addEventListener(document.getElementById('minValueRange'), 'input', function() {
         minValue = parseInt(this.value, 10);
         document.getElementById('minValueValue').textContent = minValue;
         if (videoElement instanceof HTMLImageElement) {
@@ -339,14 +284,14 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
     });
 
     document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
+        addEventListener(checkbox, 'change', () => {
             if (videoElement instanceof HTMLImageElement) {
                 draw();
             }
         });
     });
 
-    document.getElementById('resetZoomButton').addEventListener('click', () => {
+    addEventListener(document.getElementById('resetZoomButton'), 'click', () => {
         zoomList = [];
         if (videoElement instanceof HTMLImageElement) {
             draw();
@@ -354,7 +299,7 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
     });
 
     const referenceGraphCheckbox = document.getElementById('referenceGraphCheckbox');
-    referenceGraphCheckbox.addEventListener('change', () => {
+    addEventListener(referenceGraphCheckbox, 'change', () => {
         if (referenceGraphCheckbox.checked) {
             document.getElementById("referenceGraphControl").style.display = "block";
             showReferenceGraph = true;
@@ -367,35 +312,18 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
         }
     });
 
-    graphCanvas.addEventListener('mousedown', (event) => {
+    addEventListener(graphCanvas, 'mousedown', (event) => {
         isDragging = true;
         const rect = graphCanvas.getBoundingClientRect();
         dragStartX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
-        dragEndX = dragStartX; // Initialize dragEndX to dragStartX
+        dragEndX = dragStartX;
         if (videoElement instanceof HTMLImageElement) {
             draw();
         }
     });
 
-    graphCanvas.addEventListener('mousemove', (event) => {
+    addEventListener(graphCanvas, 'mousemove', (event) => {
         const rect = graphCanvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-
-        let elementWidth;
-        if (videoElement instanceof HTMLImageElement) {
-            elementWidth = videoElement.naturalWidth;
-        } else {
-            elementWidth = videoElement.videoWidth;
-        }
-
-        cursorCoordinates.x = Math.round((x - 30) / (graphCanvas.width - 60) * elementWidth);
-
-        if (zoomList.length === 2) {
-            cursorCoordinates.x = Math.round((x - 30) / (elementWidth) * elementWidth);
-        }
-
-        cursorCoordinates.y = Math.round(255 - ((y - 30) / (graphCanvas.height - 60) * 255));
 
         if (isDragging) {
             dragEndX = Math.max(30, Math.min(event.clientX - rect.left, graphCanvas.width - 30));
@@ -410,7 +338,7 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
         }
     });
 
-    graphCanvas.addEventListener('mouseup', () => {
+    addEventListener(graphCanvas, 'mouseup', () => {
         if (isDragging) {
             isDragging = false;
             addZoomRange(dragStartX, dragEndX);
@@ -421,7 +349,7 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
     });
 
     document.querySelectorAll('input[name="toggleXLabels"]').forEach(radio => {
-        radio.addEventListener('change', () => {
+        addEventListener(radio, 'change', () => {
             if (videoElement instanceof HTMLImageElement) {
                 draw();
             }
@@ -453,11 +381,21 @@ function clearGraph(graphCtx, graphCanvas) {
     graphCtx.fillRect(0, 0, graphCanvas.width, graphCanvas.height);
 }
 
-function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd) {
+function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd, pixels) {
     const width = graphCanvas.width;
     const height = graphCanvas.height;
     const padding = 30;
-    const yRange = 255;
+
+    // Calculate the maximum value from the pixels
+    let maxValue = 0;
+    for (let i = 0; i < pixels.length; i += 4) {
+        const value = Math.max(pixels[i], pixels[i + 1], pixels[i + 2]);
+        if (value > maxValue) {
+            maxValue = value;
+        }
+    }
+    maxValue += 5; // Add 5 to the maximum value
+
     const numOfYLabels = 20;
 
     graphCtx.beginPath();
@@ -470,24 +408,22 @@ function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd) {
         const y = padding + ((height - 2 * padding) / numOfYLabels) * i;
         graphCtx.moveTo(padding, y);
         graphCtx.lineTo(width - padding, y);
-        const label = (yRange - (i * (yRange / numOfYLabels))).toFixed(0);
+        const label = (maxValue - (i * (maxValue / numOfYLabels))).toFixed(0);
         graphCtx.fillText(label, 5, y + 3);
     }
 
     const toggleXLabelsPx = document.getElementById('toggleXLabelsPx').checked;
-    const numOfXLabels = 20;
-    const isZoomedIn = zoomList.length === 2;
+    const stepSize = Math.ceil((zoomEnd - zoomStart) / 20);
 
-    for (let i = 0; i <= numOfXLabels; i++) {
-        const x = padding + ((width - 2 * padding) / numOfXLabels) * i;
+    for (let i = Math.ceil(zoomStart / stepSize) * stepSize; i <= zoomEnd; i += stepSize) {
+        const x = padding + ((i - zoomStart) / (zoomEnd - zoomStart)) * (width - 2 * padding);
         graphCtx.moveTo(x, padding);
         graphCtx.lineTo(x, height - padding);
         let label;
         if (!toggleXLabelsPx) {
-            const pixelValue = zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels);
-            label = getWaveLengthByPx(pixelValue).toFixed(isZoomedIn ? 2 : 0);
+            label = getWaveLengthByPx(i).toFixed(0);
         } else {
-            label = (zoomStart + (i * (zoomEnd - zoomStart) / numOfXLabels)).toFixed(isZoomedIn ? 2 : 0);
+            label = i.toFixed(0);
         }
         graphCtx.fillText(label, x - 10, height - 5);
     }
@@ -495,24 +431,27 @@ function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd) {
     graphCtx.stroke();
 }
 
-function drawLine(graphCtx, pixels, pixelWidth, color, colorOffset, smoothing) {
+function drawLine(graphCtx, pixels, pixelWidth, color, colorOffset, smoothing, maxValue) {
     graphCtx.beginPath();
 
     for (let x = 0; x < pixelWidth; x++) {
         let value = smoothedValue(pixels, x, colorOffset, smoothing, pixelWidth);
-        const y = calculateYPosition(value, graphCtx.canvas.height);
+        const y = calculateYPosition(value, graphCtx.canvas.height, maxValue);
         const scaledX = calculateXPosition(x, pixelWidth, graphCtx.canvas.width);
 
         if (x === 0) {
             graphCtx.moveTo(scaledX, y);
         } else {
-            graphCtx.lineTo(scaledX, y);
+            graphCtx.lineTo(scaledX, graphCtx.currentY || y); // Move to the X value
+            graphCtx.lineTo(scaledX, y); // Then make another line to the Y value
         }
+        graphCtx.currentY = y; // Store the current Y value
     }
 
     graphCtx.strokeStyle = color;
     graphCtx.lineWidth = 1;
     graphCtx.stroke();
+    delete graphCtx.currentY; // Clean up the stored Y value
 }
 
 function smoothedValue(pixels, x, colorOffset, smoothing, pixelWidth) {
@@ -536,10 +475,9 @@ function calculateMaxColor(pixels, x) {
     return Math.max(pixels[x * 4], pixels[x * 4 + 1], pixels[x * 4 + 2]);
 }
 
-function calculateYPosition(value, canvasHeight) {
+function calculateYPosition(value, canvasHeight, maxValue) {
     const padding = 30;
-    const yRange = 255;
-    return canvasHeight - padding - (value / yRange) * (canvasHeight - 2 * padding);
+    return canvasHeight - padding - (value / maxValue) * (canvasHeight - 2 * padding);
 }
 
 function calculateXPosition(x, pixelWidth, canvasWidth) {
