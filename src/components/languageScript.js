@@ -2,23 +2,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedLang = urlParams.get('lang') || 'en';
 
-    fetch(`../languages/${selectedLang}.json`)
-        .then(response => response.json())
-        .then(translations => updateTextContent(translations))
-        .catch(error => console.error("Error loading language file:", error));
+    //Updates all texts
+    updateTextContent();
 
-    const selectElement = document.getElementById('language');
-    selectElement.value = selectedLang;
+    const currentUrl = window.location.href.split('?')[0]; // URL without params
+
+    // If no language shown in URL, place there the current language
+    if (urlParams.get('lang') == null) {
+        window.location.href = `${currentUrl}?lang=${selectedLang}`;
+    }
 
     // Update button hrefs with the current language parameter
     updateButtonLinks(selectedLang);
 
-    // Add event listener to update language dynamically
-    selectElement.addEventListener('change', () => {
-        const newLang = selectElement.value;
-        const currentUrl = window.location.href.split('?')[0]; // Strip query params
-        window.location.href = `${currentUrl}?lang=${newLang}`;
-    });
+    const selectElement = document.getElementById('language');
+    if (selectElement) {
+        selectElement.value = selectedLang;
+
+        // Add event listener to update language dynamically
+        selectElement.addEventListener('change', () => {
+            const newLang = selectElement.value;
+            window.location.href = `${currentUrl}?lang=${newLang}`;
+        });
+    }
 });
 
 /**
@@ -26,14 +32,21 @@ document.addEventListener('DOMContentLoaded', () => {
  * @param translations
  */
 function updateTextContent(translations) {
-    document.querySelectorAll('[data-translate]').forEach(element => {
-        const key = element.getAttribute('data-translate');
-        const value = translations[key];
+    const urlParams = new URLSearchParams(window.location.search);
+    const selectedLang = urlParams.get('lang') || 'en';
 
-        if (value) {
-            element.innerHTML = value;
-        }
-    });
+    fetch(`../languages/${selectedLang}.json`)
+        .then(response => response.json())
+        .then(translations => {
+            document.querySelectorAll('[data-translate]').forEach(element => {
+                const key = element.getAttribute('data-translate');
+                const value = translations[key];
+
+                if (value) {
+                    element.innerHTML = value;
+                }
+            });
+        }).catch(error => console.error("Error loading language file:", error));
 }
 
 /**
@@ -41,7 +54,8 @@ function updateTextContent(translations) {
  * @param {string} lang - The selected language code
  */
 function updateButtonLinks(lang) {
-    const buttons = document.querySelectorAll('.button-container a');
+    // const buttons = document.querySelectorAll('.button-container a');
+    const buttons = document.querySelectorAll('a');
     buttons.forEach(button => {
         const baseHref = button.getAttribute('href').split('?')[0]; // Strip query params
         button.setAttribute('href', `${baseHref}?lang=${lang}`);

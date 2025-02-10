@@ -47,29 +47,23 @@
 
   <div id="input-container" class="margin-left-15px">
     <div>
-      point 1:
-      <label for="point1px"></label>
+      <label data-translate="point"></label>
+      <label> 1:</label>
       <input id="point1px" type="number"/>
-
-      <label for="point1nm"></label>
       <input id="point1nm" type="number"/>
     </div>
 
     <div>
-      point 2:
-      <label for="point2px"></label>
+      <label data-translate="point"></label>
+      <label> 2:</label>
       <input id="point2px" type="number"/>
-
-      <label for="point2nm"></label>
       <input id="point2nm" type="number"/>
     </div>
 
     <div>
-      point 3:
-      <label for="point3px"></label>
+      <label data-translate="point"></label>
+      <label> 3:</label>
       <input id="point3px" type="number"/>
-
-      <label for="point3nm"></label>
       <input id="point3nm" type="number"/>
     </div>
   </div>
@@ -203,7 +197,7 @@
 
     <div id="peaksSection">
       <!-- disabled for now-->
-      <label for="togglePeaksCheckbox">Toggle Peaks</label>
+      <label for="togglePeaksCheckbox" data-translate="togglePeaks">Toggle Peaks</label>
       <input type="checkbox" id="togglePeaksCheckbox">
       <br>
       <label data-translate="smoothing" for="smoothingRange">Smoothing</label>
@@ -214,10 +208,6 @@
       <input type="range" id="minValueRange" min="0" max="255" value="0">
       <span id="minValueValue">0</span>
       <br>
-      <label>
-        <input type="checkbox" id="toggleYCoordinate">
-        Show Y-coordinate of X-coordinate in the graph
-      </label>
     </div>
     <div id="cameraExposure">
       <label data-translate="adjust-exposure" for="exposure">Adjust Exposure:</label>
