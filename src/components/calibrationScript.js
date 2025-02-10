@@ -17,7 +17,7 @@ let graphCtxCalibration;
  */
 function addInputPair() {
     inputBoxCounter++;
-    if (inputBoxCounter === 15) {
+    if (inputBoxCounter >= 15) {
         return;
     }
 
