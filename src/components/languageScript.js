@@ -29,9 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Translates the words of the webpage tagged with "data-translate"
- * @param translations
  */
-function updateTextContent(translations) {
+function updateTextContent() {
     const urlParams = new URLSearchParams(window.location.search);
     const selectedLang = urlParams.get('lang') || 'en';
 

@@ -111,9 +111,9 @@ function setCalibrationPoints() {
     }
 
     if (calibrationData.length < 3) {
-
-
-        window.alert()
+        resetCalValues();
+        window.alert("Insufficient number of calibration points");
+        return;
     }
 
     calibrate();
