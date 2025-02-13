@@ -184,12 +184,12 @@ function findPeaks(pixels, pixelWidth, minValue) {
             }
         } else {
             if (start !== null) {
-                let end = x - 1;
+                let end = x;
                 let plateauValue = smoothedValue(pixels, start, -1, smoothing, pixelWidth);
                 let nextPlateauValue = smoothedValue(pixels, x, -1, smoothing, pixelWidth);
 
                 if (plateauValue > nextPlateauValue) {
-                    maxima.push({ x: Math.floor((start + end) / 2), value: Math.floor(plateauValue) });
+                    maxima.push({ x: ((start + end) / 2), value: plateauValue });
                 }
                 start = null;
             }
@@ -246,9 +246,9 @@ function drawPeakLabel(ctx, x, y, peakX) {
     const toggleXLabelsPx = document.getElementById('toggleXLabelsPx').checked;
     let label;
     if (!toggleXLabelsPx) {
-        label = `${getWaveLengthByPx(peakX).toFixed(0)}`;
+        label = `${getWaveLengthByPx(peakX).toFixed(2)}`;
     } else {
-        label = `${peakX}`;
+        label = `${peakX.toFixed(1)}`;
     }
     const textWidth = ctx.measureText(label).width;
     const textHeight = 20;
@@ -449,15 +449,17 @@ function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd, pixels) {
     }
 
     const toggleXLabelsPx = document.getElementById('toggleXLabelsPx').checked;
-    const stepSize = Math.ceil((zoomEnd - zoomStart) / 35);
+    const zoomRange = zoomEnd - zoomStart;
+    const numOfXLabels = Math.min(20, zoomRange);
+    const stepSize = Math.ceil(zoomRange / numOfXLabels);
 
     for (let i = Math.ceil(zoomStart / stepSize) * stepSize; i <= zoomEnd; i += stepSize) {
-        const x = calculateXPosition(i - zoomStart, zoomEnd - zoomStart, width);
+        const x = calculateXPosition(i - zoomStart, zoomRange, width);
         graphCtx.moveTo(x, padding);
         graphCtx.lineTo(x, height - padding);
         let label;
         if (!toggleXLabelsPx) {
-            label = getWaveLengthByPx(i).toFixed(0);
+            label = getWaveLengthByPx(i).toFixed(1);
         } else {
             label = i.toFixed(0);
         }
