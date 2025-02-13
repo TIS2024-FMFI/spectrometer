@@ -41,7 +41,7 @@ async function startStream(deviceId) {
                     advanced: [{ exposureTime: exposureSlider.value }]
                 });
             }
-            exposureSlider.addEventListener('input', () => {
+            exposureSlider.addEventListener('change', () => {
                 videoTrack.applyConstraints({
                     advanced: [{ exposureTime: parseFloat(exposureSlider.value) }]
                 });
