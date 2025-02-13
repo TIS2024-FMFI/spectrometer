@@ -1,4 +1,3 @@
-// Slúži na priblíženie grafu na základe kliknutia na canvas
 let zoomList = [];
 let isDragging = false;
 let dragStartX = 0;
@@ -19,7 +18,9 @@ let needToRecalculateMaxima = true;
 let maxima = [];
 let eventListeners = [];
 
-
+/**
+ * Plots the RGB line graph from the camera or image element, deals with resizing, event listeners and drawing
+ */
 function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth = 1) {
     if (animationId) {
         cancelAnimationFrame(animationId);
@@ -52,12 +53,14 @@ function plotRGBLineFromCamera(videoElement, stripePosition = 0.5, stripeWidth =
         }
     });
 
-// Start observing the graphCanvas element
     resizeObserver.observe(graphCanvas);
     setupEventListeners(videoElement, draw, graphCanvas);
     draw();
 }
 
+/**
+ * Draws the graph line, graph grid and labels, deals with peaks, zooming and reference graph
+ */
 function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition, stripeWidth) {
     const { toggleCombined, toggleR, toggleG, toggleB } = getToggleStates();
     const startY = getElementHeight(videoElement) * stripePosition - stripeWidth / 2;
@@ -76,7 +79,7 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
     }
 
     if (needToRecalculateMaxima && document.getElementById('togglePeaksCheckbox').checked) {
-        maxima = findMaxima(pixels, pixelWidth, minValue);
+        maxima = findPeaks(pixels, pixelWidth, minValue);
         needToRecalculateMaxima = false;
     }
 
@@ -90,15 +93,7 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
     clearGraph(graphCtx, graphCanvas);
     drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd, pixels);
 
-    // Calculate the maximum value from the pixels
-    let maxValue = 0;
-    for (let i = 0; i < pixels.length; i += 4) {
-        const value = Math.max(pixels[i], pixels[i + 1], pixels[i + 2]);
-        if (value > maxValue) {
-            maxValue = value;
-        }
-    }
-    maxValue += 5; // Add 5 to the maximum value
+    let maxValue = calculateMaxValue(pixels);
 
     if (showReferenceGraph) {
         for (let i = 0; i < referenceGraph.length; i++) {
@@ -125,7 +120,7 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
     }
 
     if (document.getElementById('togglePeaksCheckbox').checked && maxima.length > 0) {
-        drawMaxima(graphCtx, maxima, graphCanvas, zoomStart, zoomEnd, maxValue);
+        drawPeaks(graphCtx, maxima, graphCanvas, zoomStart, zoomEnd, maxValue);
     }
 
     if (isDragging) {
@@ -136,6 +131,23 @@ function drawGraphLine(videoElement, ctx, graphCtx, graphCanvas, stripePosition,
     }
 }
 
+/**
+ * Calculates the maximum value of the graph and adds a small padding for dynamic Y axis
+ */
+function calculateMaxValue(pixels) {
+    let maxValue = 0;
+    for (let i = 0; i < pixels.length; i += 4) {
+        const value = Math.max(pixels[i], pixels[i + 1], pixels[i + 2]);
+        if (value > maxValue) {
+            maxValue = value;
+        }
+    }
+    return maxValue + 5;
+}
+
+/**
+ * Averages the pixels in a stripe
+ */
 function averagePixels(pixels, pixelWidth, stripeWidth) {
     let averagedPixels = new Uint8ClampedArray(pixelWidth * 4);
     for (let x = 0; x < pixelWidth; x++) {
@@ -154,7 +166,10 @@ function averagePixels(pixels, pixelWidth, stripeWidth) {
     return averagedPixels;
 }
 
-function findMaxima(pixels, pixelWidth, minValue) {
+/**
+ * Finds the peaks of the graph
+ */
+function findPeaks(pixels, pixelWidth, minValue) {
     let maxima = [];
     let start = null;
 
@@ -181,13 +196,11 @@ function findMaxima(pixels, pixelWidth, minValue) {
         }
     }
 
-    // Check for maximum at the first pixel
     const firstPixelValue = smoothedValue(pixels, 0, -1, smoothing, pixelWidth);
     if (firstPixelValue > smoothedValue(pixels, 1, -1, smoothing, pixelWidth) && firstPixelValue > minValue) {
         maxima.push({ x: 0, value: Math.floor(firstPixelValue) });
     }
 
-    // Check for maximum at the last pixel
     const lastPixelValue = smoothedValue(pixels, pixelWidth - 1, -1, smoothing, pixelWidth);
     if (lastPixelValue > smoothedValue(pixels, pixelWidth - 2, -1, smoothing, pixelWidth) && lastPixelValue > minValue) {
         maxima.push({ x: pixelWidth - 1, value: Math.floor(lastPixelValue) });
@@ -196,6 +209,9 @@ function findMaxima(pixels, pixelWidth, minValue) {
     return maxima;
 }
 
+/**
+ * Draws dotted lines below the peaks on the graph canvas
+ */
 function drawDottedLine(ctx, x, yStart, yEnd, color) {
     ctx.beginPath();
     ctx.setLineDash([5, 5]); // Set the line dash pattern
@@ -207,7 +223,10 @@ function drawDottedLine(ctx, x, yStart, yEnd, color) {
     ctx.setLineDash([]); // Reset the line dash pattern
 }
 
-function drawMaxima(ctx, maxima, canvas, zoomStart, zoomEnd, maxValue) {
+/**
+ * Draws the peaks on the graph canvas
+ */
+function drawPeaks(ctx, maxima, canvas, zoomStart, zoomEnd, maxValue) {
     const padding = 30;
     const height = canvas.height;
     maxima.forEach(max => {
@@ -220,22 +239,28 @@ function drawMaxima(ctx, maxima, canvas, zoomStart, zoomEnd, maxValue) {
     });
 }
 
+/**
+ * Draws the peak label on the graph canvas
+ */
 function drawPeakLabel(ctx, x, y, peakX) {
     const toggleXLabelsPx = document.getElementById('toggleXLabelsPx').checked;
     let label;
     if (!toggleXLabelsPx) {
-        label = `X: ${getWaveLengthByPx(peakX).toFixed(0)}`;
+        label = `${getWaveLengthByPx(peakX).toFixed(0)}`;
     } else {
-        label = `X: ${peakX}`;
+        label = `${peakX}`;
     }
     const textWidth = ctx.measureText(label).width;
-    const textHeight = 20; // Increase the text height for bigger text
+    const textHeight = 20;
 
     ctx.fillStyle = 'black';
-    ctx.font = 'bold 14px Arial'; // Make the text bigger and bold
+    ctx.font = '16px Arial'; // Non-bold, bigger font
     ctx.fillText(label, x - textWidth / 2, y - textHeight / 2);
 }
 
+/**
+ * Creates a canvas element for the line graph
+ */
 function createLineCanvas(videoElement, stripeWidth) {
     const lineCanvas = document.createElement('canvas');
     lineCanvas.width = getElementWidth(videoElement);
@@ -243,6 +268,9 @@ function createLineCanvas(videoElement, stripeWidth) {
     return lineCanvas;
 }
 
+/**
+ * Removes existing event listeners from the graph canvas
+ */
 function removeEventListeners() {
     eventListeners.forEach(({ element, type, listener }) => {
         element.removeEventListener(type, listener);
@@ -250,6 +278,9 @@ function removeEventListeners() {
     eventListeners = [];
 }
 
+/**
+ * Sets up event listeners for the graph canvas
+ */
 function setupEventListeners(videoElement, draw, graphCanvas) {
     removeEventListeners();
 
@@ -359,6 +390,9 @@ function setupEventListeners(videoElement, draw, graphCanvas) {
     });
 }
 
+/**
+ * Returns the states of RGB toggle buttons
+ */
 function getToggleStates() {
     return {
         toggleCombined: document.getElementById('toggleCombined').checked,
@@ -368,6 +402,9 @@ function getToggleStates() {
     };
 }
 
+/**
+ * Returns the zoom range based on pixel width
+ */
 function getZoomRange(pixelWidth) {
     let zoomStart = 0;
     let zoomEnd = pixelWidth;
@@ -377,33 +414,30 @@ function getZoomRange(pixelWidth) {
     return [zoomStart, zoomEnd];
 }
 
+/**
+ * Clears the graph canvas
+ */
 function clearGraph(graphCtx, graphCanvas) {
     graphCtx.clearRect(0, 0, graphCanvas.width, graphCanvas.height);
     graphCtx.fillStyle = 'white';
     graphCtx.fillRect(0, 0, graphCanvas.width, graphCanvas.height);
 }
 
+/**
+ * Draws the grid on the graph canvas
+ */
 function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd, pixels) {
     const width = graphCanvas.width;
     const height = graphCanvas.height;
     const padding = 30;
 
-    // Calculate the maximum value from the pixels
-    let maxValue = 0;
-    for (let i = 0; i < pixels.length; i += 4) {
-        const value = Math.max(pixels[i], pixels[i + 1], pixels[i + 2]);
-        if (value > maxValue) {
-            maxValue = value;
-        }
-    }
-    maxValue += 5; // Add 5 to the maximum value
-
-    const numOfYLabels = 20;
+    let maxValue = calculateMaxValue(pixels);
+    const numOfYLabels = 25;
 
     graphCtx.beginPath();
     graphCtx.strokeStyle = '#e0e0e0';
     graphCtx.lineWidth = 0.5;
-    graphCtx.font = '10px Arial';
+    graphCtx.font = '14px Arial';
     graphCtx.fillStyle = 'black';
 
     for (let i = 0; i <= numOfYLabels; i++) {
@@ -415,10 +449,10 @@ function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd, pixels) {
     }
 
     const toggleXLabelsPx = document.getElementById('toggleXLabelsPx').checked;
-    const stepSize = Math.ceil((zoomEnd - zoomStart) / 20);
+    const stepSize = Math.ceil((zoomEnd - zoomStart) / 35);
 
     for (let i = Math.ceil(zoomStart / stepSize) * stepSize; i <= zoomEnd; i += stepSize) {
-        const x = padding + ((i - zoomStart) / (zoomEnd - zoomStart)) * (width - 2 * padding);
+        const x = calculateXPosition(i - zoomStart, zoomEnd - zoomStart, width);
         graphCtx.moveTo(x, padding);
         graphCtx.lineTo(x, height - padding);
         let label;
@@ -433,6 +467,9 @@ function drawGrid(graphCtx, graphCanvas, zoomStart, zoomEnd, pixels) {
     graphCtx.stroke();
 }
 
+/**
+ * Draws a line on the graph canvas
+ */
 function drawLine(graphCtx, pixels, pixelWidth, color, colorOffset, smoothing, maxValue) {
     graphCtx.beginPath();
 
@@ -444,18 +481,21 @@ function drawLine(graphCtx, pixels, pixelWidth, color, colorOffset, smoothing, m
         if (x === 0) {
             graphCtx.moveTo(scaledX, y);
         } else {
-            graphCtx.lineTo(scaledX, graphCtx.currentY || y); // Move to the X value
-            graphCtx.lineTo(scaledX, y); // Then make another line to the Y value
+            graphCtx.lineTo(scaledX, graphCtx.currentY || y);
+            graphCtx.lineTo(scaledX, y);
         }
-        graphCtx.currentY = y; // Store the current Y value
+        graphCtx.currentY = y;
     }
 
     graphCtx.strokeStyle = color;
     graphCtx.lineWidth = 1;
     graphCtx.stroke();
-    delete graphCtx.currentY; // Clean up the stored Y value
+    delete graphCtx.currentY;
 }
 
+/**
+ * Returns the smoothed value of a pixel
+ */
 function smoothedValue(pixels, x, colorOffset, smoothing, pixelWidth) {
     let sum = 0;
     let count = 0;
@@ -473,24 +513,36 @@ function smoothedValue(pixels, x, colorOffset, smoothing, pixelWidth) {
     return count > 0 ? sum / count : 0;
 }
 
+/**
+ * Returns the maximum color value of a pixel
+ */
 function calculateMaxColor(pixels, x) {
     return Math.max(pixels[x * 4], pixels[x * 4 + 1], pixels[x * 4 + 2]);
 }
 
+/**
+ * Calculates the Y position of a value on the canvas
+ */
 function calculateYPosition(value, canvasHeight, maxValue) {
     const padding = 30;
     return canvasHeight - padding - (value / maxValue) * (canvasHeight - 2 * padding);
 }
 
+/**
+ * Calculates the X position of a value on the canvas
+ */
 function calculateXPosition(x, pixelWidth, canvasWidth) {
     const padding = 30;
     return padding + (x / (pixelWidth - 1)) * (canvasWidth - 2 * padding);
 }
 
+/**
+ * Adds a zoom range to the zoom list
+ */
 function addZoomRange(startX, endX) {
     const graphCanvas = document.getElementById('graphCanvas');
     const rect = graphCanvas.getBoundingClientRect();
-    const canvasWidth = rect.width - 60; // Adjust for padding
+    const canvasWidth = rect.width - 60;
 
     let elementWidth;
     if (videoElement instanceof HTMLImageElement) {
@@ -523,17 +575,22 @@ function addZoomRange(startX, endX) {
     zoomList[1] = Math.min(elementWidth, zoomList[1]);
 }
 
+/**
+ * Adds a reference line to the graph
+ */
 function addReferenceLine() {
     captureReferenceGraph = true;
     plotRGBLineFromCamera(videoElement, getYPercentage(), getStripeWidth());
 }
 
+/**
+ * Removes all reference lines and adds a new reference line
+ */
 function removeReferenceLinesAndAddNewReferenceLine() {
     referenceGraph = [];
     addReferenceLine();
 }
 
-// Event listener pre zmenu šírky pásika
 document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
     checkbox.addEventListener('change', () => {
         if (videoElement) {

@@ -1,3 +1,6 @@
+/**
+ * Display the camera selection above the graph
+ */
 function showSelectedStripe() {
     const stripeCanvas = document.getElementById('stripeCanvas');
     const graphCanvas = document.getElementById('graphCanvas');
@@ -14,23 +17,25 @@ function showSelectedStripe() {
 
     const stripeWidth = getStripeWidth();
     if (typeof stripeWidth !== 'number' || stripeWidth <= 0) {
-        // console.error('Invalid stripe width');
         return;
     }
 
     if (!videoElement || getElementWidth(videoElement) <= 0 || getElementHeight(videoElement) <= 0) {
-        // console.error('Invalid video element or dimensions');
         return;
     }
 
     const videoWidth = getElementWidth(videoElement);
     const stripePosition = getElementHeight(videoElement) * getYPercentage() - stripeWidth / 2;
 
-    stripeCanvas.width = graphCanvas.width;
+    const zoomStart = zoomList[0] || 0;
+    const zoomEnd = zoomList[1] || videoWidth;
 
-    stripeCtx.drawImage(videoElement, 0, stripePosition, videoWidth, stripeWidth, 0, 0, stripeCanvas.width, stripeCanvas.height);
+    stripeCtx.drawImage(videoElement, zoomStart, stripePosition, zoomEnd - zoomStart, stripeWidth, 0, 0, stripeCanvas.width, stripeCanvas.height);
 }
 
+/**
+ * Updates the stripe continuously
+ */
 function updateStripeContinuously() {
     showSelectedStripe();
     requestAnimationFrame(updateStripeContinuously);
