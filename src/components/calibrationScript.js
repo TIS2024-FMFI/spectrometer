@@ -268,8 +268,10 @@ function drawGridCalibration() {
     const height = graphCanvasCalibration.height;
     const padding = 30;
 
-    const yRange = 1280;
+    const yMin = 350;
+    const yMax = 1000;
     const numOfYLabels = 30;
+    const yStep = Math.ceil((yMax - yMin) / numOfYLabels / 5) * 5;
 
     graphCtxCalibration.beginPath();
     graphCtxCalibration.strokeStyle = '#e0e0e0';
@@ -278,22 +280,29 @@ function drawGridCalibration() {
     graphCtxCalibration.fillStyle = 'black';
 
     for (let i = 0; i <= numOfYLabels; i++) {
-        const y = padding + ((height - 2 * padding) / numOfYLabels) * i;
+        const yValue = yMax - i * yStep;
+        if (yValue < yMin) { break; }
+
+        const y = padding + ((height - 2 * padding) / (yMax - yMin)) * (yMax - yValue);
         graphCtxCalibration.moveTo(padding, y);
         graphCtxCalibration.lineTo(width - padding, y);
-        const label = (yRange - (i * (yRange / numOfYLabels))).toFixed(0);
-        graphCtxCalibration.fillText(label, 5, y + 3);
+        graphCtxCalibration.fillText(yValue.toFixed(0), 5, y + 3);
     }
 
-    const numOfXLabels = 30;
-    const xRange = 1280;
+    const xMin = 0;
+    const xMax = 1280;
+    const numOfXLabels = 32;
+    const xStep = Math.ceil((xMax - xMin) / numOfXLabels / 5) * 5;
 
     for (let i = 0; i <= numOfXLabels; i++) {
-        const x = padding + ((width - 2 * padding) / numOfXLabels) * i;
+        const xValue = i * xStep;
+        if (xValue > xMax) { break; }
+
+        const x = padding + ((xValue - xMin) / xMax) * (width - 2 * padding);
         graphCtxCalibration.moveTo(x, padding);
         graphCtxCalibration.lineTo(x, height - padding);
-        const label = (i * (xRange / numOfXLabels)).toFixed(0);
-        graphCtxCalibration.fillText(label, x - 5, height - padding + 15);
+        graphCtxCalibration.font = xValue >= 1000 ? '9px Arial' : '10px Arial';
+        graphCtxCalibration.fillText(xValue.toFixed(0), x - 7, height - padding + 15);
     }
 
     graphCtxCalibration.stroke();
@@ -309,8 +318,10 @@ function drawCalibrationLine() {
 
     const interpolate = lagrangeInterpolation(pixelCalPoints, nmCalPoints);
 
-    const rangeBegin = 0;
-    const rangeEnd = 1280;
+    const rangeBeginX = 0;
+    const rangeEndX = 1280;
+    const rangeBeginY = 350;
+    const rangeEndY = 1000;
 
     graphCtxCalibration.beginPath();
 
@@ -321,8 +332,8 @@ function drawCalibrationLine() {
         const yInterpolated = interpolate(x);
 
         // Scale x and y to fit within the graph dimensions
-        let xScaled = padding + ((x - rangeBegin) / rangeEnd) * (width - 2 * padding);
-        let yScaled = height - padding - ((yInterpolated - rangeBegin) / rangeEnd) * (height - 2 * padding);
+        let xScaled = padding + ((x - rangeBeginX) / (rangeEndX - rangeBeginX)) * (width - 2 * padding);
+        let yScaled = height - padding - ((yInterpolated - rangeBeginY) / (rangeEndY - rangeBeginY)) * (height - 2 * padding);
 
         if (firstPoint) {
             graphCtxCalibration.moveTo(xScaled, yScaled);
@@ -368,9 +379,14 @@ function drawCalibrationPoints() {
     const height = graphCanvasCalibration.height;
     const padding = 30;
 
+    const rangeBeginX = 0;
+    const rangeEndX = 1280;
+    const rangeBeginY = 350;
+    const rangeEndY = 1000;
+
     for (let i = 0; i < nmCalPoints.length; i++) {
-        const x = padding + ((pixelCalPoints[i] - 0) / 1280) * (width - 2 * padding);
-        const y = height - padding - ((nmCalPoints[i] - 0) / 1280) * (height - 2 * padding);
+        const x = padding + ((pixelCalPoints[i] - rangeBeginX) / (rangeEndX - rangeBeginX)) * (width - 2 * padding);
+        const y = height - padding - ((nmCalPoints[i] - rangeBeginY) / (rangeEndY - rangeBeginY)) * (height - 2 * padding);
 
         // Draw point
         graphCtxCalibration.fillStyle = 'red';
